@@ -34,15 +34,17 @@
             // Only compute and append when we have both valid grade and percentage
             if (!isNaN(grade) && !isNaN(percentage)) {
                 const ponderate = grade * (percentage / 100);
-                const ponderDiv = document.createElement("div");
-                ponderDiv.innerText = `Ponderado: ${ponderate.toFixed(1)}`;
-                container.appendChild(ponderDiv);
+                // For debugging calculations, uncomment below:
+                // const ponderDiv = document.createElement("div");
+                // ponderDiv.innerText = `Ponderado: ${ponderate.toFixed(1)}`;
+                // container.appendChild(ponderDiv);
                 total += ponderate;
             } else {
                 // Use push (arrays don't have append). Include which values are missing.
                 remainingActivities.push({
                     description,
-                    percentage: percentage / 100
+                    percentage: percentage / 100,
+                    container
                 });
             }
 
@@ -51,6 +53,72 @@
             currentGPA: total,
             remainingActivities
         };
+    }
+
+    function calculateRequiredGrade(targetGPA, currentGPA, remainingWeight) {
+        if (remainingWeight === 0) return null;
+        const required = (targetGPA - currentGPA) / remainingWeight;
+
+        if (required < 0) return 0.0;
+        if (required > 5.0) return "Not possible to pass";
+        return required;
+    }
+
+    function calculateRequiredGradePerActivity(remainingActivities, currentGPA, targetGPA = 3.0) {
+        // Calculate total remaining weight
+        const remainingWeight = remainingActivities.reduce((sum, activity) => {
+            return sum + (isNaN(activity.percentage) ? 0 : activity.percentage);
+        }, 0);
+
+        if (remainingWeight === 0) {
+            console.log("No remaining activities with valid weight.");
+            return null;
+        }
+
+        const requiredGrade = calculateRequiredGrade(targetGPA, currentGPA, remainingWeight);
+
+        if (requiredGrade === null) {
+            console.log("Cannot calculate required grade: no remaining weight.");
+            return null;
+        }
+
+        return {
+            requiredGrade,
+            remainingWeight,
+            activities: remainingActivities
+        };
+    }
+
+    function injectRequiredGradeUI(data) {
+        if (!data || !data.activities) return;
+
+        const { requiredGrade, activities } = data;
+        const isNotPossible = requiredGrade === "Not possible to pass";
+
+        activities.forEach((activity) => {
+            if (!activity.container) return;
+
+            const resultDiv = document.createElement("div");
+            resultDiv.style.marginTop = "8px";
+            resultDiv.style.padding = "8px";
+            resultDiv.style.backgroundColor = "#f0f0f0";
+            resultDiv.style.borderRadius = "4px";
+            resultDiv.style.fontSize = "12px";
+
+            const percentageDisplay = isNaN(activity.percentage)
+                ? "N/A"
+                : (activity.percentage * 100).toFixed(1) + "%";
+
+            const gradeDisplay = isNotPossible
+                ? requiredGrade
+                : Number(requiredGrade).toFixed(2);
+
+            resultDiv.innerHTML = `
+                <strong style="color: ${isNotPossible ? 'red' : 'green'};">Calificación mínima para aprobar: ${gradeDisplay}</strong>
+            `;
+
+            activity.container.appendChild(resultDiv);
+        });
     }
 
     function injectUI(gpa) {
@@ -78,6 +146,16 @@
             injectUI(data.currentGPA);
             console.log("GPA:", data.currentGPA);
             console.log("Remaining Activities:", data.remainingActivities);
+
+            // Calculate and display required grades for remaining activities
+            const requiredData = calculateRequiredGradePerActivity(
+                data.remainingActivities,
+                data.currentGPA,
+                3.0
+            );
+            if (requiredData) {
+                injectRequiredGradeUI(requiredData);
+            }
         }, 2000);
     });
 })();
