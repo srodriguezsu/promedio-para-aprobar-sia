@@ -54,7 +54,6 @@
         const required = (targetGPA - currentGPA) / remainingWeight;
 
         if (required < 0) return 0.0;
-        if (required > 5.0) return required + " 💀";
         return required;
     }
 
@@ -85,7 +84,7 @@
         if (!data || !data.activities) return;
 
         const { requiredGrade, activities } = data;
-        const isNotPossible = requiredGrade === "Not possible to pass";
+        const isNotPossible = requiredGrade > 5;
 
         activities.forEach((activity) => {
             if (!activity.container) return;
@@ -103,7 +102,7 @@
                 : (activity.percentage * 100).toFixed(1) + "%";
 
             const gradeDisplay = isNotPossible
-                ? requiredGrade
+                ?  Number(requiredGrade).toFixed(1) + " 💀"
                 : Number(requiredGrade).toFixed(1);
 
             resultDiv.innerHTML = `
@@ -149,7 +148,7 @@
         box.id = "gpa-extension-box";
         const gpaText = (typeof gpa === "number") ? gpa.toFixed(1) : gpa;
         box.innerHTML = `
-            <strong>📊 GPA Calculado</strong>
+            <strong>📊 Promedio calculado</strong>
             <div class="gpa-value">${gpaText}</div>
             <button id="gpa-refresh-btn" style="
                 margin-top: 10px;
