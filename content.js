@@ -6,6 +6,15 @@
         const gradeContainers = document.querySelectorAll(
             "span.bloque-row.datos-parcial.af_panelGroupLayout"
         );
+
+        const subjectNameElement = document.querySelector("span.titulo-nombre-asignatura.af_panelGroupLayout");
+        let subjectName = subjectNameElement ? subjectNameElement.textContent.trim() : "N/A";
+
+        // Limit to 20 characters with ellipsis
+        if (subjectName.length > 20) {
+            subjectName = subjectName.substring(0, 20) + "...";
+        }
+
         gradeContainers.forEach((container) =>  {
 
             const descriptionSpan = container.querySelector(
@@ -44,6 +53,7 @@
 
         })
         return {
+            subjectName,
             currentGPA: total,
             remainingActivities
         };
@@ -91,11 +101,7 @@
 
             const resultDiv = document.createElement("div");
             resultDiv.setAttribute("data-required-grade-ui", "true");
-            resultDiv.style.marginTop = "8px";
-            resultDiv.style.padding = "8px";
-            resultDiv.style.backgroundColor = "#f0f0f0";
-            resultDiv.style.borderRadius = "4px";
-            resultDiv.style.fontSize = "12px";
+            resultDiv.classList.add("gpa-required-grade");
 
             const percentageDisplay = isNaN(activity.percentage)
                 ? "N/A"
@@ -106,7 +112,7 @@
                 : Number(requiredGrade).toFixed(1);
 
             resultDiv.innerHTML = `
-                <strong style="color: ${isNotPossible ? 'red' : 'green'};">Calificación mínima para aprobar: ${gradeDisplay}</strong>
+                <strong class="${isNotPossible ? 'gpa-grade-impossible' : 'gpa-grade-possible'}">Calificación mínima para aprobar: ${gradeDisplay}</strong>
             `;
 
             activity.container.appendChild(resultDiv);
@@ -126,6 +132,12 @@
             gpaValueDiv.textContent = data.currentGPA.toFixed(1);
         }
 
+        // update the subject name
+        const subjectNameDiv = document.getElementById("gpa-subject-name");
+        if (subjectNameDiv) {
+            subjectNameDiv.textContent = `📊 ${data.subjectName}`;
+        }
+
         // Recalculate and display required grades
         const requiredData = calculateRequiredGradePerActivity(
             data.remainingActivities,
@@ -137,7 +149,7 @@
         }
     }
 
-    function injectUI(gpa) {
+    function injectUI(gpa, title = "Promedio calculado") {
         // Accept 0 as a valid value; only bail out on null/undefined
         if (gpa == null) return;
 
@@ -148,19 +160,9 @@
         box.id = "gpa-extension-box";
         const gpaText = (typeof gpa === "number") ? gpa.toFixed(1) : gpa;
         box.innerHTML = `
-            <strong>📊 Promedio calculado</strong>
+            <strong id="gpa-subject-name">📊 ${title}</strong>
             <div class="gpa-value">${gpaText}</div>
-            <button id="gpa-refresh-btn" style="
-                margin-top: 10px;
-                padding: 6px 12px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 12px;
-                font-weight: bold;
-            ">🔄 Calcular</button>
+            <button id="gpa-refresh-btn">🔄 Calcular</button>
         `;
 
         document.body.appendChild(box);
@@ -176,7 +178,7 @@
     window.addEventListener("load", () => {
         setTimeout(() => {
             const data = calculateGPA();
-            injectUI(data.currentGPA);
+            injectUI(data.currentGPA, data.subjectName);
 
             // Calculate and display required grades for remaining activities
             const requiredData = calculateRequiredGradePerActivity(
