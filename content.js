@@ -6,11 +6,6 @@
         const gradeContainers = document.querySelectorAll(
             "span.bloque-row.datos-parcial.af_panelGroupLayout"
         );
-
-
-        console.log("Grade Containers:");
-        console.log(gradeContainers);
-
         gradeContainers.forEach((container) =>  {
 
             const descriptionSpan = container.querySelector(
@@ -40,7 +35,6 @@
                 // container.appendChild(ponderDiv);
                 total += ponderate;
             } else {
-                // Use push (arrays don't have append). Include which values are missing.
                 remainingActivities.push({
                     description,
                     percentage: percentage / 100,
@@ -60,7 +54,7 @@
         const required = (targetGPA - currentGPA) / remainingWeight;
 
         if (required < 0) return 0.0;
-        if (required > 5.0) return "Not possible to pass";
+        if (required > 5.0) return required + " 💀";
         return required;
     }
 
@@ -71,14 +65,12 @@
         }, 0);
 
         if (remainingWeight === 0) {
-            console.log("No remaining activities with valid weight.");
             return null;
         }
 
         const requiredGrade = calculateRequiredGrade(targetGPA, currentGPA, remainingWeight);
 
         if (requiredGrade === null) {
-            console.log("Cannot calculate required grade: no remaining weight.");
             return null;
         }
 
@@ -99,6 +91,7 @@
             if (!activity.container) return;
 
             const resultDiv = document.createElement("div");
+            resultDiv.setAttribute("data-required-grade-ui", "true");
             resultDiv.style.marginTop = "8px";
             resultDiv.style.padding = "8px";
             resultDiv.style.backgroundColor = "#f0f0f0";
@@ -111,7 +104,7 @@
 
             const gradeDisplay = isNotPossible
                 ? requiredGrade
-                : Number(requiredGrade).toFixed(2);
+                : Number(requiredGrade).toFixed(1);
 
             resultDiv.innerHTML = `
                 <strong style="color: ${isNotPossible ? 'red' : 'green'};">Calificación mínima para aprobar: ${gradeDisplay}</strong>
@@ -119,6 +112,30 @@
 
             activity.container.appendChild(resultDiv);
         });
+    }
+
+    function refreshCalculation() {
+        // Remove old required grade UI elements
+        document.querySelectorAll("[data-required-grade-ui]").forEach((el) => el.remove());
+
+        // Recalculate GPA
+        const data = calculateGPA();
+
+        // Update the GPA display
+        const gpaValueDiv = document.querySelector(".gpa-value");
+        if (gpaValueDiv) {
+            gpaValueDiv.textContent = data.currentGPA.toFixed(1);
+        }
+
+        // Recalculate and display required grades
+        const requiredData = calculateRequiredGradePerActivity(
+            data.remainingActivities,
+            data.currentGPA,
+            3.0
+        );
+        if (requiredData) {
+            injectRequiredGradeUI(requiredData);
+        }
     }
 
     function injectUI(gpa) {
@@ -132,11 +149,28 @@
         box.id = "gpa-extension-box";
         const gpaText = (typeof gpa === "number") ? gpa.toFixed(1) : gpa;
         box.innerHTML = `
-      <strong>📊 GPA Calculado</strong>
-      <div class="gpa-value">${gpaText}</div>
-    `;
+            <strong>📊 GPA Calculado</strong>
+            <div class="gpa-value">${gpaText}</div>
+            <button id="gpa-refresh-btn" style="
+                margin-top: 10px;
+                padding: 6px 12px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                font-weight: bold;
+            ">🔄 Calcular</button>
+        `;
 
         document.body.appendChild(box);
+
+        // Attach click listener to refresh button
+        const refreshBtn = document.getElementById("gpa-refresh-btn");
+        if (refreshBtn) {
+            refreshBtn.addEventListener("click", refreshCalculation);
+        }
     }
 
     // Wait until page loads fully (important for dynamic sites)
@@ -144,8 +178,6 @@
         setTimeout(() => {
             const data = calculateGPA();
             injectUI(data.currentGPA);
-            console.log("GPA:", data.currentGPA);
-            console.log("Remaining Activities:", data.remainingActivities);
 
             // Calculate and display required grades for remaining activities
             const requiredData = calculateRequiredGradePerActivity(
