@@ -2,7 +2,7 @@
 
 ## Objetivo del Proyecto
 
-Esta extensión de navegador calcula automáticamente el **promedio ponderado (GPA)** de estudiantes de la Universidad Nacional de Colombia (UNAL) en tiempo real mientras navegan por el sistema de calificaciones.
+Esta extensión de navegador calcula automáticamente el **promedio ponderado** de cada asignatura de estudiantes de la Universidad Nacional de Colombia (UNAL) en tiempo real mientras navegan por el sistema de calificaciones.
 
 ## Características Principales
 
