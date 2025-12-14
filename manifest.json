@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Promedio UNAL",
+  "description": "Calculates GPA directly on the university grades page",
+  "version": "1.0.0",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.sia.unal.edu.co/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  }
+}
