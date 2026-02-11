@@ -1,4 +1,5 @@
 export const SELECTORS = {
+    // Grades selectors
     gradeContainers: "span.bloque-row.datos-parcial.af_panelGroupLayout",
     subjectName: "span.titulo-nombre-asignatura.af_panelGroupLayout",
     description: "span.datos-parcial-item.datos-parcial-descripcion.af_panelGroupLayout",
@@ -8,5 +9,8 @@ export const SELECTORS = {
     gpaValue: ".gpa-value",
     gpaSubjectName: "#gpa-subject-name",
     gpaBox: "#gpa-extension-box",
-    refreshButton: "#gpa-refresh-btn"
+    refreshButton: "#gpa-refresh-btn",
+
+    // History selectors
+    asignaturasContainer: "span.row.asignaturas-expediente.clear.af_panelGroupLayout",
 };

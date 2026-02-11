@@ -16,6 +16,10 @@ import {
     updateSubjectName
 } from "../ui/gpaUI.js";
 
+import {
+    areAsignaturasAvailable
+} from "../ui/historyUI.js";
+
 function runCalculation() {
     const activities = extractActivitiesFromDom();
     const subjectNameRaw = extractSubjectName();
@@ -54,6 +58,10 @@ function initWhenReady() {
 
     const observer = new MutationObserver(() => {
         if (areGradeContainersAvailable()) {
+            observer.disconnect();
+            runCalculation();
+        }
+        if (areAsignaturasAvailable()) {
             observer.disconnect();
             runCalculation();
         }
