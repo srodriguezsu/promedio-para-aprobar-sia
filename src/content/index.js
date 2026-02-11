@@ -17,7 +17,9 @@ import {
 } from "../ui/gpaUI.js";
 
 import {
-    areAsignaturasAvailable
+    areAsignaturasAvailable,
+    renderAsignaturasBySemester,
+    extractAsignaturasFromDom
 } from "../ui/historyUI.js";
 
 function runCalculation() {
@@ -55,6 +57,11 @@ function initWhenReady() {
         runCalculation();
         return;
     }
+    if (areAsignaturasAvailable()) {
+        const asignaturas = extractAsignaturasFromDom();
+        renderAsignaturasBySemester(asignaturas);
+        return;
+    }
 
     const observer = new MutationObserver(() => {
         if (areGradeContainersAvailable()) {
@@ -63,7 +70,8 @@ function initWhenReady() {
         }
         if (areAsignaturasAvailable()) {
             observer.disconnect();
-            runCalculation();
+            const asignaturas = extractAsignaturasFromDom();
+            renderAsignaturasBySemester(asignaturas);
         }
     });
 

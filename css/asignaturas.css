@@ -1,0 +1,59 @@
+.sia-semester-wrapper {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 16px 0;
+}
+
+.sia-semester-column {
+    min-width: 260px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    flex-shrink: 0;
+}
+
+.sia-semester-title {
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.sia-asignatura-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #eee;
+    transition: transform 0.15s ease;
+}
+
+.sia-asignatura-card:hover {
+    transform: translateY(-2px);
+}
+
+.sia-asig-nombre {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.sia-asig-meta {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sia-asig-estado {
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.sia-asig-estado.aprobada {
+    color: #2e7d32;
+}
+
+.sia-asig-estado.reprobada {
+    color: #c62828;
+}

@@ -8,7 +8,12 @@
     {
       "matches": ["*://*.sia.unal.edu.co/*"],
       "js": ["dist/content.js"],
-      "css": ["styles.css"]
+      "css": [
+          "css/box.css",
+            "css/required-grade.css",
+              "css/asignaturas.css"
+]
+
     }
   ],
   "icons": {
