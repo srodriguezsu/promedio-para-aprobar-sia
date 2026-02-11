@@ -11,7 +11,7 @@ import {
     extractSubjectName,
     injectGpaBox,
     injectRequiredGradeUi,
-    isPageReady,
+    areGradeContainersAvailable,
     updateGpaDisplay,
     updateSubjectName
 } from "../ui/gpaUI.js";
@@ -46,14 +46,14 @@ function refreshCalculation() {
 }
 
 function initWhenReady() {
-    console.log("Iniciando GPA Calculator para SIA UNAL...");
-    if (isPageReady()) {
+    console.log("SIA Pro Activado");
+    if (areGradeContainersAvailable()) {
         runCalculation();
         return;
     }
 
     const observer = new MutationObserver(() => {
-        if (isPageReady()) {
+        if (areGradeContainersAvailable()) {
             observer.disconnect();
             runCalculation();
         }

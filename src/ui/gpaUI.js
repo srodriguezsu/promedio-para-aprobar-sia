@@ -98,7 +98,7 @@ export function bindRefreshButton(onRefresh) {
     }
 }
 
-export function isPageReady() {
+export function areGradeContainersAvailable() {
     const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
     return gradeContainers && gradeContainers.length > 0;
 }
