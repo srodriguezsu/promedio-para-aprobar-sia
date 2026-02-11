@@ -46,6 +46,7 @@ function refreshCalculation() {
 }
 
 function initWhenReady() {
+    console.log("Iniciando GPA Calculator para SIA UNAL...");
     if (isPageReady()) {
         runCalculation();
         return;
