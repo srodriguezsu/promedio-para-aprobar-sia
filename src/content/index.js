@@ -20,7 +20,7 @@ import {
     areAsignaturasAvailable,
     renderAsignaturasBySemester,
     extractAsignaturasFromDom
-} from "../ui/historyUI.js";
+} from "../ui/historia_academica/asignaturasUI.js";
 
 function runCalculation() {
     const activities = extractActivitiesFromDom();

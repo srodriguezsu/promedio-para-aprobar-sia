@@ -1,59 +1,214 @@
 .sia-semester-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 24px;
     overflow-x: auto;
-    padding: 16px 0;
+    padding: 24px 16px;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+}
+
+.sia-semester-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.sia-semester-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 100px;
+}
+
+.sia-semester-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 100px;
+    transition: background 0.2s;
+}
+
+.sia-semester-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .sia-semester-column {
-    min-width: 260px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    min-width: 280px;
+    max-width: 320px;
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    border-radius: 16px;
+    padding: 20px 16px;
+    box-shadow: 0 8px 20px -6px rgba(0, 0, 0, 0.08), 0 4px 8px -4px rgba(0, 0, 0, 0.02);
     flex-shrink: 0;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: box-shadow 0.2s ease;
+}
+
+.sia-semester-column:hover {
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
 }
 
 .sia-semester-title {
-    margin-bottom: 12px;
+    margin-bottom: 20px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.sia-semester-title::before {
+    content: "📘";
     font-size: 16px;
-    font-weight: bold;
+    opacity: 0.8;
 }
 
 .sia-asignatura-card {
     background: white;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #eee;
-    transition: transform 0.15s ease;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #edf2f7;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .sia-asignatura-card:hover {
     transform: translateY(-2px);
+    border-color: #cbd5e0;
+    box-shadow: 0 12px 20px -12px rgba(0, 0, 0, 0.12);
+    background: #ffffff;
 }
 
 .sia-asig-nombre {
-    font-weight: 600;
-    margin-bottom: 6px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #1e293b;
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    padding-right: 4px;
 }
 
 .sia-asig-meta {
     font-size: 12px;
-    color: #666;
+    color: #64748b;
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 6px 0 4px;
+    border-top: 1px dashed #e2e8f0;
+    border-bottom: 1px dashed #e2e8f0;
+    margin-top: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.sia-asig-meta span:first-child {
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #334155;
+    font-weight: 600;
+}
+
+.sia-asig-meta span:last-child {
+    background: #e6f0ff;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #2563eb;
+    font-weight: 600;
 }
 
 .sia-asig-estado {
-    margin-top: 8px;
-    font-weight: 500;
+    margin-top: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    width: fit-content;
+    letter-spacing: 0.01em;
 }
 
 .sia-asig-estado.aprobada {
-    color: #2e7d32;
+    color: #0b5e42;
+    background: linear-gradient(145deg, #e6f7ec, #dcfce7);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.sia-asig-estado.aprobada::before {
+    content: "✓";
+    font-weight: 800;
+    font-size: 16px;
 }
 
 .sia-asig-estado.reprobada {
-    color: #c62828;
+    color: #991b1b;
+    background: linear-gradient(145deg, #fef2f2, #fee2e2);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.sia-asig-estado.reprobada::before {
+    content: "⚠";
+    font-weight: 800;
+    font-size: 16px;
+}
+
+/* Special styling for courses without numeric grade */
+.sia-asig-estado.aprobada:has(span:contains("-")) {
+    background: linear-gradient(145deg, #f1f5f9, #e6edf5);
+    color: #334155;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .sia-semester-wrapper {
+        gap: 16px;
+        padding: 16px 12px;
+    }
+    
+    .sia-semester-column {
+        min-width: 260px;
+        padding: 16px 12px;
+    }
+    
+    .sia-asignatura-card {
+        padding: 14px;
+    }
+    
+    .sia-asig-nombre {
+        font-size: 14px;
+    }
+}
+
+/* Optional: Add subtle pattern background for visual interest */
+.sia-semester-column {
+    background-image: radial-gradient(circle at 100% 0%, rgba(241, 245, 249, 0.4) 0%, transparent 50%);
+}
+
+/* Better typography scale */
+.sia-asig-estado {
+    font-size: 13px;
+}
+
+.sia-asig-meta {
+    font-size: 11px;
+}
+
+/* Improve focus states for accessibility */
+.sia-asignatura-card:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Add visual indicator for credit count */
+.sia-asig-meta span:first-child::after {
+    content: " 🎓";
+    font-size: 10px;
+    margin-left: 2px;
 }

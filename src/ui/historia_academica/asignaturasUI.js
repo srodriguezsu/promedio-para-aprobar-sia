@@ -1,4 +1,4 @@
-import { SELECTORS } from "../utils/selectors";
+import { SELECTORS } from "../../utils/selectors";
 
 export function extractAsignaturasFromDom() {
     const asignaturasRaw = document.querySelectorAll("tr.af_table_data-row");
