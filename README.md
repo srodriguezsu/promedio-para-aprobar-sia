@@ -1,8 +1,8 @@
-# Promedio Para Aprobar (SIA UNAL) - Extensión de Navegador
+# SIA UNAL Pro - Extensión de Navegador
 
 ## Objetivo del Proyecto
 
-Esta extensión de navegador calcula automáticamente el **promedio de cada asignatura** de estudiantes de la Universidad Nacional de Colombia (UNAL) en tiempo real mientras navegan por el sistema de calificaciones.
+SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estudiantes de la Universidad Nacional de Colombia (UNAL) en tiempo real mientras navegan por el sistema de calificaciones.
 
 ## Características Principales
 
@@ -28,23 +28,34 @@ Esta extensión de navegador calcula automáticamente el **promedio de cada asig
 ## Cómo Funciona
 
 1. La extensión detecta automáticamente las actividades académicas en la página
-2. Extrae las calificaciones, porcentajes y descripciones
-3. Calcula el promedio actual con las actividades gradeadas
+2. Extrae calificaciones, porcentajes y descripciones
+3. Calcula el promedio actual con las actividades calificadas
 4. Muestra las calificaciones mínimas requeridas para las actividades pendientes
 
 ## Estructura del Proyecto
 
 ```
 /
-├── content.js        # Lógica principal de cálculo y DOM manipulation
-├── styles.css        # Estilos de la interfaz de usuario
-├── manifest.json     # Configuración de la extensión
-└── README.md         # Este archivo
+├── css/
+│   ├── box.css                 # Estilos del widget principal
+│   └── required-grade.css      # Estilos de calificación requerida
+├── src/
+│   ├── content/
+│   │   └── index.js             # Entry point (content script)
+│   ├── domain/
+│   │   └── gpaCalculator.js     # Lógica pura de GPA (sin DOM)
+│   ├── ui/
+│   │   └── gpaUI.js             # Manipulación de DOM
+│   └── utils/
+│       └── selectors.js         # Selectores y constantes
+├── styles.css                   # Importa estilos modulares
+├── manifest.json                # Configuración de la extensión (MV3)
+└── README.md                    # Este archivo
 ```
 
 ## Requisitos
 
-- Navegador compatible con extensiones (Chrome, Firefox, Edge, etc.)
+- Navegador compatible con extensiones (Chrome, Edge, etc.)
 - Acceso al SIA de la UNAL
 
 ## Instalación
@@ -57,9 +68,16 @@ Esta extensión de navegador calcula automáticamente el **promedio de cada asig
 ## Uso
 
 1. Navega a la página de calificaciones de UNAL
-2. La extensión se activará automáticamente después de 2 segundos
+2. La extensión se activará automáticamente cuando la página esté lista
 3. Verás una caja flotante con tu promedio calculado
 4. Presiona el botón **🔄 Calcular** para actualizar los valores en cualquier momento
+
+## Arquitectura
+
+- **domain/** contiene solo lógica pura (sin DOM)
+- **ui/** contiene solo manipulación de DOM
+- **content/index.js** orquesta el flujo y usa un `MutationObserver` para inicializar de forma segura
+- Se usan **ES Modules** compatibles con Manifest V3
 
 
 ## Licencia

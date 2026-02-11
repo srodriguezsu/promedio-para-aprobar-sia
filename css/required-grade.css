@@ -1,0 +1,15 @@
+.gpa-required-grade {
+    margin-top: 8px;
+    padding: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.gpa-grade-possible {
+    color: green;
+}
+
+.gpa-grade-impossible {
+    color: red;
+}
