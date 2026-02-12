@@ -74,35 +74,36 @@ export function areAsignaturasAvailable() {
 export function renderAsignaturasBySemester(asignaturas) {
     if (!Array.isArray(asignaturas) || asignaturas.length === 0) return;
 
-    console.log("Rendering asignaturas grouped by semester:", asignaturas);
-
-    // Group by semester
     const grouped = asignaturas.reduce((acc, asignatura) => {
         const semestre = asignatura.semestre || "Sin semestre";
-
-        if (!acc[semestre]) {
-            acc[semestre] = [];
-        }
-
+        if (!acc[semestre]) acc[semestre] = [];
         acc[semestre].push(asignatura);
         return acc;
     }, {});
 
-    // Sort semesters descending (latest first)
     const sortedSemestres = Object.keys(grouped).sort().reverse();
 
-    // Find container where we inject
-    const hostContainer = document.querySelector("span.row.asignaturas-expediente.clear.af_panelGroupLayout");
+    const hostContainer = document.querySelector(
+        "span.row.asignaturas-expediente.clear.af_panelGroupLayout"
+    );
     if (!hostContainer) return;
 
-    // Clear previous render
     hostContainer.innerHTML = "";
 
-    // Create main wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
 
     for (const semestre of sortedSemestres) {
+        const materias = grouped[semestre];
+
+        // Ordenar por calificación descendente (null al final)
+        materias.sort((a, b) => {
+            if (a.calificacion == null) return 1;
+            if (b.calificacion == null) return -1;
+            return b.calificacion - a.calificacion;
+        });
+
+
         const column = document.createElement("div");
         column.className = "sia-semester-column";
 
@@ -110,11 +111,17 @@ export function renderAsignaturasBySemester(asignaturas) {
         title.textContent = semestre;
         title.className = "sia-semester-title";
 
+        const metrics = document.createElement("div");
         column.appendChild(title);
+        column.appendChild(metrics);
 
-        for (const asignatura of grouped[semestre]) {
+        for (const asignatura of materias) {
             const card = document.createElement("div");
             card.className = "sia-asignatura-card";
+
+            const estadoClass = asignatura.estado
+                ?.toLowerCase()
+                .replace(/\s+/g, "-");
 
             card.innerHTML = `
                 <div class="sia-asig-nombre">${asignatura.nombre}</div>
@@ -122,7 +129,7 @@ export function renderAsignaturasBySemester(asignaturas) {
                     <span>${asignatura.creditos} créditos</span>
                     <span>${asignatura.componente}</span>
                 </div>
-                <div class="sia-asig-estado ${asignatura.estado?.toLowerCase()}">
+                <div class="sia-asig-estado ${estadoClass}">
                     ${asignatura.calificacion ?? "-"} ${asignatura.estado}
                 </div>
             `;
