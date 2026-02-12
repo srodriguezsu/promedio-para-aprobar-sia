@@ -38,7 +38,7 @@ export function renderCreditosProgress(data) {
     if (!Array.isArray(data) || data.length === 0) return;
 
     const hostContainer = document.querySelector(
-        "span.row.asignaturas-expediente.clear.af_panelGroupLayout"
+        "span.row.resumen-creditos.clear.af_panelGroupLayout"
     );
     if (!hostContainer) return;
 
@@ -47,7 +47,36 @@ export function renderCreditosProgress(data) {
     const wrapper = document.createElement("div");
     wrapper.className = "sia-tipologias-wrapper";
 
-    for (const item of data) {
+    // 🔹 Separar totales
+    const total = data.find(
+        item => item.componente?.toUpperCase() === "TOTAL"
+    );
+
+    const totalEstudiante = data.find(
+        item => item.componente?.toUpperCase() === "TOTAL ESTUDIANTE"
+    );
+
+    // 🔹 Filtrar los demás
+    const normales = data.filter(item => {
+        const nombre = item.componente?.toUpperCase();
+        return nombre !== "TOTAL" && nombre !== "TOTAL ESTUDIANTE";
+    });
+
+    // 🔹 Ordenar normales por porcentaje aprobado
+    normales.sort((a, b) => {
+        const porcentajeA = a.exigidos ? a.aprobados / a.exigidos : 0;
+        const porcentajeB = b.exigidos ? b.aprobados / b.exigidos : 0;
+        return porcentajeB - porcentajeA;
+    });
+
+    // 🔹 Reconstruir array final
+    const orderedData = [
+        ...normales,
+        ...(total ? [total] : []),
+        ...(totalEstudiante ? [totalEstudiante] : [])
+    ];
+
+    for (const item of orderedData) {
         const {
             componente,
             exigidos,
@@ -56,11 +85,13 @@ export function renderCreditosProgress(data) {
             pendientes
         } = item;
 
-        if (!exigidos || componente === "TOTAL") continue;
+        const porcentajeAprobado = exigidos
+            ? (aprobados / exigidos) * 100
+            : 0;
 
-        const porcentajeAprobado = (aprobados / exigidos) * 100;
-        const porcentajeConInscritos =
-            ((aprobados + inscritos) / exigidos) * 100;
+        const porcentajeConInscritos = exigidos
+            ? ((aprobados + inscritos) / exigidos) * 100
+            : 0;
 
         const card = document.createElement("div");
         card.className = "sia-tipologia-card";

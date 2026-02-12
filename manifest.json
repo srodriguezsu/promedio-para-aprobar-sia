@@ -11,7 +11,8 @@
       "css": [
           "css/box.css",
             "css/required-grade.css",
-              "css/asignaturas.css"
+              "css/asignaturas.css",
+                "css/creditos.css"
 ]
 
     }

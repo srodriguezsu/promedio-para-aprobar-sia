@@ -48,6 +48,8 @@ export function extractAsignaturasFromDom() {
             estado = calificacionEstadoRaw || null;
         }
 
+        if (!nombre || !semestre) continue;
+        
         if (!semestres[semestre]) {
             semestres[semestre] = {
                 asignaturas: [],

@@ -1,0 +1,257 @@
+.sia-tipologias-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+    padding: 24px 0;
+    height: 60vh;
+    overflow: auto;
+}
+
+.sia-tipologia-card {
+    background: white;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.sia-tipologia-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 24px -8px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e0;
+}
+
+.sia-tipologia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sia-tipologia-header h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sia-tipologia-header h3::before {
+    content: "📊";
+    font-size: 18px;
+}
+
+.sia-tipologia-percent {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    letter-spacing: -0.01em;
+}
+
+.sia-progress-bar {
+    position: relative;
+    height: 12px;
+    background: #f1f5f9;
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Créditos aprobados */
+.sia-progress-aprobado {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, #2563eb, #3b82f6);
+    border-radius: 100px;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+}
+
+/* Créditos inscritos (progreso proyectado) */
+.sia-progress-inscrito {
+    position: absolute;
+    height: 100%;
+    background: linear-gradient(90deg, #93c5fd, #bfdbfe);
+    border-radius: 100px;
+    z-index: 1;
+    opacity: 0.7;
+}
+
+.sia-tipologia-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #334155;
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 4px;
+    border: 1px solid #edf2f7;
+}
+
+/* Individual metric rows */
+.sia-tipologia-metrics div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.sia-tipologia-metrics div:last-child {
+    border-bottom: none;
+}
+
+.sia-tipologia-metrics span:first-child {
+    font-weight: 500;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sia-tipologia-metrics span:last-child {
+    font-weight: 700;
+    color: #0f172a;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 100px;
+    border: 1px solid #e2e8f0;
+    font-size: 13px;
+}
+
+/* Different icons for different metric types */
+.sia-tipologia-metrics div:nth-child(1) span:first-child::before {
+    content: "✅";
+    font-size: 12px;
+}
+
+.sia-tipologia-metrics div:nth-child(2) span:first-child::before {
+    content: "📝";
+    font-size: 12px;
+}
+
+.sia-tipologia-metrics div:nth-child(3) span:first-child::before {
+    content: "📈";
+    font-size: 12px;
+}
+
+.sia-tipologia-metrics div:nth-child(4) span:first-child::before {
+    content: "🎯";
+    font-size: 12px;
+}
+
+/* Variants for different tipologia types */
+.sia-tipologia-card[data-type="fundamentacion"] .sia-progress-aprobado {
+    background: linear-gradient(90deg, #0891b2, #06b6d4);
+}
+
+.sia-tipologia-card[data-type="fundamentacion"] .sia-tipologia-percent {
+    background: #ecfeff;
+    color: #0891b2;
+    border-color: rgba(8, 145, 178, 0.2);
+}
+
+.sia-tipologia-card[data-type="disciplinar"] .sia-progress-aprobado {
+    background: linear-gradient(90deg, #7e22ce, #9333ea);
+}
+
+.sia-tipologia-card[data-type="disciplinar"] .sia-tipologia-percent {
+    background: #f3e8ff;
+    color: #7e22ce;
+    border-color: rgba(126, 34, 206, 0.2);
+}
+
+.sia-tipologia-card[data-type="libre"] .sia-progress-aprobado {
+    background: linear-gradient(90deg, #b45309, #d97706);
+}
+
+.sia-tipologia-card[data-type="libre"] .sia-tipologia-percent {
+    background: #fff7ed;
+    color: #b45309;
+    border-color: rgba(180, 83, 9, 0.2);
+}
+
+.sia-tipologia-card[data-type="nivelacion"] .sia-progress-aprobado {
+    background: linear-gradient(90deg, #0d9488, #14b8a6);
+}
+
+.sia-tipologia-card[data-type="nivelacion"] .sia-tipologia-percent {
+    background: #f0fdfa;
+    color: #0d9488;
+    border-color: rgba(13, 148, 136, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sia-tipologias-wrapper {
+        gap: 16px;
+        padding: 16px 0;
+    }
+    
+    .sia-tipologia-card {
+        padding: 20px;
+    }
+    
+    .sia-tipologia-header h3 {
+        font-size: 15px;
+    }
+    
+    .sia-tipologia-percent {
+        font-size: 18px;
+        padding: 2px 10px;
+    }
+    
+    .sia-tipologia-metrics {
+        padding: 14px;
+        font-size: 13px;
+    }
+}
+
+/* Add loading state animation */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.sia-tipologia-card.loading .sia-progress-aprobado {
+    background: linear-gradient(90deg, #e2e8f0, #cbd5e0, #e2e8f0);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* Optional: Add min-height for empty states */
+.sia-tipologia-card:empty::before {
+    content: "No hay datos disponibles";
+    color: #94a3b8;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* Focus state for accessibility */
+.sia-tipologia-card:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
