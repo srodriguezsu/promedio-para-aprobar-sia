@@ -125,9 +125,7 @@ export function renderAsignaturasBySemester(data) {
         if (semestreData.creditosReprobados > 0){
             metrics.innerHTML = `
                 <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
-                <span>Total Asignaturas: ${semestreData.asignaturas.length}</span>
-                <span>Aprobados: ${semestreData.creditosAprobados}</span>
-                <span>Reprobados: ${semestreData.creditosReprobados}</span>
+                <span>Créditos Reprobados: ${semestreData.creditosReprobados}</span>
             `;
         } else {
             metrics.innerHTML = `
