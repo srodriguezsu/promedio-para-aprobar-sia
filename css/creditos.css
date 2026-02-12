@@ -3,7 +3,8 @@
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 24px;
     padding: 24px 0;
-    height: 60vh;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+    height: 50vh;
     overflow: auto;
 }
 
@@ -91,6 +92,11 @@
     border-radius: 100px;
     z-index: 1;
     opacity: 0.7;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    font-size: 0.7rem;
+    color: #1e293b;
 }
 
 .sia-tipologia-metrics {
@@ -117,14 +123,6 @@
 
 .sia-tipologia-metrics div:last-child {
     border-bottom: none;
-}
-
-.sia-tipologia-metrics span:first-child {
-    font-weight: 500;
-    color: #64748b;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .sia-tipologia-metrics span:last-child {

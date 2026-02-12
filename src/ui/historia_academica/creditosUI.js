@@ -112,13 +112,14 @@ export function renderCreditosProgress(data) {
                 <div 
                     class="sia-progress-inscrito"
                     style="width: ${porcentajeConInscritos}%"
-                ></div>
+                >
+                    <span>${Math.round(porcentajeConInscritos)}%</span>
+                </div>
             </div>
 
             <div class="sia-tipologia-metrics">
                 <span><strong>${aprobados}</strong> / ${exigidos} créditos</span>
-                <span>Inscritos: ${inscritos}</span>
-                <span>Faltan: ${pendientes}</span>
+                <span>Faltan: ${pendientes} - Inscritos: ${inscritos}</span>
             </div>
         `;
 
