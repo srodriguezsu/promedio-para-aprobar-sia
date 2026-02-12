@@ -24,14 +24,12 @@ export function extractAsignaturasFromDom() {
                 "td.af_column_data-cell.ex-asig-tip, td.af_column_banded-data-cell.ex-asig-tip"
             )?.textContent.trim() || null;
         
-        const semestreRaw = asignatura
+        const semestre = asignatura
             .querySelector(
                 "td.af_column_data-cell.ex-asig-conv, td.af_column_banded-data-cell.ex-asig-conv"
             )
             ?.textContent.trim() || "";
 
-        const semestreMatch = semestreRaw.match(/\d{4}-\dS/);
-        const semestre = semestreMatch ? semestreMatch[0] : "Sin semestre";
 
         const calificacionEstadoRaw = asignatura
             .querySelector(
@@ -123,11 +121,23 @@ export function renderAsignaturasBySemester(data) {
 
         const metrics = document.createElement("div");
         metrics.className = "sia-semester-metrics";
-        metrics.innerHTML = `
-            <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
-            <span>Aprobados: ${semestreData.creditosAprobados}</span>
-            <span>Reprobados: ${semestreData.creditosReprobados}</span>
-        `;
+
+        if (semestreData.creditosReprobados > 0){
+            metrics.innerHTML = `
+                <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
+                <span>Total Asignaturas: ${semestreData.asignaturas.length}</span>
+                <span>Aprobados: ${semestreData.creditosAprobados}</span>
+                <span>Reprobados: ${semestreData.creditosReprobados}</span>
+            `;
+        } else {
+            metrics.innerHTML = `
+                <span>Total Créditos: ${semestreData.creditosAprobados}</span>
+                <span>Total Asignaturas: ${semestreData.asignaturas.length}</span>
+            `;
+        }
+
+
+        
 
         column.appendChild(title);
         column.appendChild(metrics);
