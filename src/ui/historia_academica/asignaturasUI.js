@@ -88,18 +88,19 @@ export function areAsignaturasAvailable() {
     return asignaturasRaw.length > 0;
 }
 
-export function renderAsignaturasBySemester(data) {
+export function renderAsignaturasBySemester(data, container) {
     if (!data || typeof data !== "object") return;
 
-    const hostContainer = document.querySelector(
-        "span.row.asignaturas-expediente.clear.af_panelGroupLayout"
-    );
-    if (!hostContainer) return;
-
-    hostContainer.innerHTML = "";
+    if (!container) return;
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
+
+    const title = document.createElement("h2");
+    title.textContent = "Historia Académica por Semestre";
+    title.className = "sia-semester-header";
+
+    wrapper.appendChild(title);
 
     // Ordenar semestres descendente (ej: 2025-2S > 2025-1S > 2024-2S)
     const sortedSemestres = Object.keys(data).sort().reverse();
@@ -168,5 +169,5 @@ export function renderAsignaturasBySemester(data) {
         wrapper.appendChild(column);
     }
 
-    hostContainer.appendChild(wrapper);
+    container.appendChild(wrapper);
 }

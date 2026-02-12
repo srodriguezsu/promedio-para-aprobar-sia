@@ -34,18 +34,20 @@ export function areCreditosAvailable() {
     return rows.length > 0;
 }
 
-export function renderCreditosProgress(data) {
+export function renderCreditosProgress(data, container) {
     if (!Array.isArray(data) || data.length === 0) return;
 
-    const hostContainer = document.querySelector(
-        "span.row.resumen-creditos.clear.af_panelGroupLayout"
-    );
-    if (!hostContainer) return;
 
-    hostContainer.innerHTML = "";
+    if (!container) return;
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-tipologias-wrapper";
+
+    const title = document.createElement("h2");
+    title.textContent = "Créditos por Tipología";
+    title.className = "sia-tipologias-header";
+
+    wrapper.appendChild(title);
 
     // 🔹 Separar totales
     const total = data.find(
@@ -126,5 +128,5 @@ export function renderCreditosProgress(data) {
         wrapper.appendChild(card);
     }
 
-    hostContainer.appendChild(wrapper);
+    container.appendChild(wrapper);
 }

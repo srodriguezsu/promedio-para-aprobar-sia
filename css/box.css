@@ -36,3 +36,65 @@
 #gpa-refresh-btn:hover {
     background-color: #45a049;
 }
+
+#sia-unal-root {
+    all: initial;
+    font-family: system-ui, sans-serif;
+}
+
+/* Floating Button */
+.sia-floating-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999999;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #0a2a66;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s ease;
+}
+
+.sia-floating-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Modal */
+.sia-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 999998;
+}
+
+.sia-modal.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sia-modal-content {
+    background: white;
+    width: 95vw;
+    height: 95vh;
+    border-radius: 12px;
+    padding: 30px;
+    overflow-y: auto;
+    position: relative;
+}
+
+.sia-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+}

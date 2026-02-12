@@ -5,15 +5,9 @@ import {
 } from "../domain/gpaCalculator.js";
 
 import {
-    bindRefreshButton,
-    clearRequiredGradeUi,
     extractActivitiesFromDom,
     extractSubjectName,
-    injectGpaBox,
-    injectRequiredGradeUi,
-    areGradeContainersAvailable,
-    updateGpaDisplay,
-    updateSubjectName
+    areGradeContainersAvailable
 } from "../ui/gpaUI.js";
 
 import {
@@ -28,62 +22,103 @@ import {
     renderCreditosProgress
 } from "../ui/historia_academica/creditosUI.js";
 
-function runCalculation() {
-    const activities = extractActivitiesFromDom();
-    const subjectNameRaw = extractSubjectName();
-    const subjectName = normalizeSubjectName(subjectNameRaw);
+let observer;
+let extractedData = null;
 
-    const { currentGPA, remainingActivities } = calculateCurrentGPA(activities);
+/* =============================
+   ROOT + FLOATING BUTTON
+============================= */
 
-    injectGpaBox(currentGPA, subjectName);
-    updateGpaDisplay(currentGPA);
-    updateSubjectName(subjectName);
+function mountApp() {
+    if (document.getElementById("sia-unal-root")) return;
 
-    const requiredData = calculateRequiredGradePerActivity(
-        remainingActivities,
-        currentGPA,
-        3.0
-    );
+    const root = document.createElement("div");
+    root.id = "sia-unal-root";
 
-    if (requiredData) {
-        injectRequiredGradeUi(requiredData);
+    root.innerHTML = `
+        <button id="sia-floating-btn" class="sia-floating-btn">
+            📊
+        </button>
+
+        <div id="sia-modal" class="sia-modal">
+            <div class="sia-modal-content">
+                <button id="sia-close-btn" class="sia-close-btn">✕</button>
+                <div id="sia-dashboard"></div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(root);
+
+    bindUIEvents();
+}
+
+function bindUIEvents() {
+    const btn = document.getElementById("sia-floating-btn");
+    const modal = document.getElementById("sia-modal");
+    const close = document.getElementById("sia-close-btn");
+
+    btn.addEventListener("click", () => {
+        modal.classList.add("active");
+
+        if (!extractedData) {
+            extractAndRenderDashboard();
+        }
+    });
+
+    close.addEventListener("click", () => {
+        modal.classList.remove("active");
+    });
+}
+
+/* =============================
+   DATA EXTRACTION
+============================= */
+
+function extractAndRenderDashboard() {
+    const dashboard = document.getElementById("sia-dashboard");
+    dashboard.innerHTML = "";
+
+    if (areGradeContainersAvailable()) {
+        const activities = extractActivitiesFromDom();
+        const subjectName = normalizeSubjectName(extractSubjectName());
+        const { currentGPA } = calculateCurrentGPA(activities);
+
+        dashboard.innerHTML += `
+            <h2>Promedio Actual</h2>
+            <p style="font-size: 24px;">${currentGPA}</p>
+        `;
     }
 
-    bindRefreshButton(refreshCalculation);
+    if (areAsignaturasAvailable()) {
+        const semestres = extractAsignaturasFromDom();
+        renderAsignaturasBySemester(semestres, dashboard);
+    }
+
+    if (areCreditosAvailable()) {
+        const creditos = extractCreditosFromDom();
+        renderCreditosProgress(creditos, dashboard);
+    }
+
+    extractedData = true;
 }
 
-function refreshCalculation() {
-    clearRequiredGradeUi();
-    runCalculation();
-}
+/* =============================
+   INIT
+============================= */
 
 function initWhenReady() {
     console.log("SIA Pro Activado");
-    if (areGradeContainersAvailable()) {
-        runCalculation();
-        return;
-    }
-    if (areAsignaturasAvailable() && areCreditosAvailable()) {
-        const semestres = extractAsignaturasFromDom();
-        const creditos = extractCreditosFromDom();
-    
-        renderAsignaturasBySemester(semestres);
-        renderCreditosProgress(creditos);
-        return;
-    }
 
-    const observer = new MutationObserver(() => {
-        if (areGradeContainersAvailable()) {
+    mountApp();
+
+    observer = new MutationObserver(() => {
+        if (
+            areGradeContainersAvailable() ||
+            areAsignaturasAvailable() ||
+            areCreditosAvailable()
+        ) {
             observer.disconnect();
-            runCalculation();
-        }
-        if (areAsignaturasAvailable() && areCreditosAvailable()) {
-            observer.disconnect();
-            const semestres = extractAsignaturasFromDom();
-            const creditos = extractCreditosFromDom();
-            
-            renderAsignaturasBySemester(semestres);
-            renderCreditosProgress(creditos);
         }
     });
 
