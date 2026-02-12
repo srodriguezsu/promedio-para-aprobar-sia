@@ -22,6 +22,12 @@ import {
     extractAsignaturasFromDom
 } from "../ui/historia_academica/asignaturasUI.js";
 
+import {
+    areCreditosAvailable,
+    extractCreditosFromDom,
+    renderCreditosProgress
+} from "../ui/historia_academica/creditosUI.js";
+
 function runCalculation() {
     const activities = extractActivitiesFromDom();
     const subjectNameRaw = extractSubjectName();
@@ -57,10 +63,12 @@ function initWhenReady() {
         runCalculation();
         return;
     }
-    if (areAsignaturasAvailable()) {
+    if (areAsignaturasAvailable() && areCreditosAvailable()) {
         const semestres = extractAsignaturasFromDom();
-        console.log("Asignaturas extraídas:", semestres);
+        const creditos = extractCreditosFromDom();
+    
         renderAsignaturasBySemester(semestres);
+        renderCreditosProgress(creditos);
         return;
     }
 
@@ -69,11 +77,13 @@ function initWhenReady() {
             observer.disconnect();
             runCalculation();
         }
-        if (areAsignaturasAvailable()) {
+        if (areAsignaturasAvailable() && areCreditosAvailable()) {
             observer.disconnect();
             const semestres = extractAsignaturasFromDom();
-            console.log("Asignaturas extraídas:", semestres);
+            const creditos = extractCreditosFromDom();
+            
             renderAsignaturasBySemester(semestres);
+            renderCreditosProgress(creditos);
         }
     });
 

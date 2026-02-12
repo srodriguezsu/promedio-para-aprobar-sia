@@ -76,6 +76,7 @@ export function extractAsignaturasFromDom() {
 
     }
 
+
     return semestres;
 }
 

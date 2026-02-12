@@ -1,0 +1,98 @@
+export function extractCreditosFromDom() {
+    const rows = document.querySelectorAll(
+    "#pt1\\:r1\\:0\\:t10\\:\\:db table.af_table_data-table tbody > tr.af_table_data-row"
+    );
+
+    const creditos = [];
+
+    for (const row of rows) {
+        const componente = row.querySelector(
+            "td.af_column_data-cell.text-left, td.af_column_banded-data-cell.text-left"
+        )?.textContent.trim() || "";
+
+        const creditosCells = row.querySelectorAll(
+            "td.af_column_data-cell.text-center, td.af_column_banded-data-cell.text-center"
+        );
+
+        creditos.push({
+            componente,
+            exigidos: creditosCells[0] ? parseInt(creditosCells[0].textContent.trim()) : 0,
+            aprobados: creditosCells[1] ? parseInt(creditosCells[1].textContent.trim()) : 0,
+            pendientes: creditosCells[2] ? parseInt(creditosCells[2].textContent.trim()) : 0,
+            inscritos: creditosCells[3] ? parseInt(creditosCells[3].textContent.trim()) : 0,
+            cursados: creditosCells[4] ? parseInt(creditosCells[4].textContent.trim()) : 0
+        });
+    }
+
+    return creditos;
+}
+
+export function areCreditosAvailable() {
+    const rows = document.querySelectorAll(
+        "#pt1\\:r1\\:0\\:t10\\:\\:db table.af_table_data-table tbody > tr.af_table_data-row"
+    );
+    return rows.length > 0;
+}
+
+export function renderCreditosProgress(data) {
+    if (!Array.isArray(data) || data.length === 0) return;
+
+    const hostContainer = document.querySelector(
+        "span.row.asignaturas-expediente.clear.af_panelGroupLayout"
+    );
+    if (!hostContainer) return;
+
+    hostContainer.innerHTML = "";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "sia-tipologias-wrapper";
+
+    for (const item of data) {
+        const {
+            componente,
+            exigidos,
+            aprobados,
+            inscritos,
+            pendientes
+        } = item;
+
+        if (!exigidos || componente === "TOTAL") continue;
+
+        const porcentajeAprobado = (aprobados / exigidos) * 100;
+        const porcentajeConInscritos =
+            ((aprobados + inscritos) / exigidos) * 100;
+
+        const card = document.createElement("div");
+        card.className = "sia-tipologia-card";
+
+        card.innerHTML = `
+            <div class="sia-tipologia-header">
+                <h3>${componente}</h3>
+                <span class="sia-tipologia-percent">
+                    ${Math.round(porcentajeAprobado)}%
+                </span>
+            </div>
+
+            <div class="sia-progress-bar">
+                <div 
+                    class="sia-progress-aprobado"
+                    style="width: ${porcentajeAprobado}%"
+                ></div>
+                <div 
+                    class="sia-progress-inscrito"
+                    style="width: ${porcentajeConInscritos}%"
+                ></div>
+            </div>
+
+            <div class="sia-tipologia-metrics">
+                <span><strong>${aprobados}</strong> / ${exigidos} créditos</span>
+                <span>Inscritos: ${inscritos}</span>
+                <span>Faltan: ${pendientes}</span>
+            </div>
+        `;
+
+        wrapper.appendChild(card);
+    }
+
+    hostContainer.appendChild(wrapper);
+}
