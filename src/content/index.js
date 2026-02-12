@@ -58,8 +58,9 @@ function initWhenReady() {
         return;
     }
     if (areAsignaturasAvailable()) {
-        const asignaturas = extractAsignaturasFromDom();
-        renderAsignaturasBySemester(asignaturas);
+        const semestres = extractAsignaturasFromDom();
+        console.log("Asignaturas extraídas:", semestres);
+        renderAsignaturasBySemester(semestres);
         return;
     }
 
@@ -70,8 +71,9 @@ function initWhenReady() {
         }
         if (areAsignaturasAvailable()) {
             observer.disconnect();
-            const asignaturas = extractAsignaturasFromDom();
-            renderAsignaturasBySemester(asignaturas);
+            const semestres = extractAsignaturasFromDom();
+            console.log("Asignaturas extraídas:", semestres);
+            renderAsignaturasBySemester(semestres);
         }
     });
 

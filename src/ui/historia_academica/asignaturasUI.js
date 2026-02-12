@@ -3,26 +3,26 @@ import { SELECTORS } from "../../utils/selectors";
 export function extractAsignaturasFromDom() {
     const asignaturasRaw = document.querySelectorAll("tr.af_table_data-row");
 
-    const asignaturas = [];
+    const semestres = {};
 
     for (const asignatura of asignaturasRaw) {
-
 
         const nombre = asignatura
             .querySelector(
                 "td.af_column_data-cell.ex-asig-des, td.af_column_banded-data-cell.ex-asig-des"
-            )?.textContent.trim();
+            )?.textContent.trim() || null;
 
-            
-        const creditos = asignatura
+        const creditosRaw = asignatura
             .querySelector(
                 "td.af_column_data-cell.ex-asig-cre.text-right, td.af_column_banded-data-cell.ex-asig-cre.text-right"
             )?.textContent.trim();
 
+        const creditos = creditosRaw ? parseInt(creditosRaw, 10) : null;
+
         const componente = asignatura
             .querySelector(
                 "td.af_column_data-cell.ex-asig-tip, td.af_column_banded-data-cell.ex-asig-tip"
-            )?.textContent.trim();
+            )?.textContent.trim() || null;
         
         const semestreRaw = asignatura
             .querySelector(
@@ -30,58 +30,65 @@ export function extractAsignaturasFromDom() {
             )
             ?.textContent.trim() || "";
 
-        const semestreMatch = semestreRaw?.match(/\d{4}-\dS/);
-        const semestre = semestreMatch ? semestreMatch[0] : null;
+        const semestreMatch = semestreRaw.match(/\d{4}-\dS/);
+        const semestre = semestreMatch ? semestreMatch[0] : "Sin semestre";
 
-
-        const calificacion_estado = asignatura
+        const calificacionEstadoRaw = asignatura
             .querySelector(
                 "td.af_column_data-cell.ex-asig-cal.text-center, td.af_column_banded-data-cell.ex-asig-cal.text-center"
-            )?.textContent.trim();
-
+            )?.textContent.trim() || "";
 
         let calificacion = null;
         let estado = null;
 
-        const match = calificacion_estado?.match(/\d+\.\d/); 
+        const match = calificacionEstadoRaw.match(/\d+\.\d/);
 
         if (match) {
             calificacion = parseFloat(match[0]);
-            estado = calificacion_estado.replace(match[0], "").trim();
+            estado = calificacionEstadoRaw.replace(match[0], "").trim();
         } else {
-            estado = calificacion_estado; 
+            estado = calificacionEstadoRaw || null;
         }
 
-        asignaturas.push({
+        if (!semestres[semestre]) {
+            semestres[semestre] = {
+                asignaturas: [],
+                creditosAprobados: 0,
+                creditosReprobados: 0
+
+            };
+        }
+
+        semestres[semestre].asignaturas.push({
             nombre,
-            creditos: creditos ? parseInt(creditos, 10) : null,
+            creditos,
             componente,
             semestre,
             calificacion,
             estado
         });
+
+        
+
+        if (estado === "APROBADA") {
+            semestres[semestre].creditosAprobados += creditos || 0;
+        } else {
+            semestres[semestre].creditosReprobados += creditos || 0;
+        }
+
     }
 
-    return asignaturas;
-        
+    return semestres;
 }
+
 
 export function areAsignaturasAvailable() {
     const asignaturasRaw = document.querySelectorAll("tr.af_table_data-row");
     return asignaturasRaw.length > 0;
 }
 
-export function renderAsignaturasBySemester(asignaturas) {
-    if (!Array.isArray(asignaturas) || asignaturas.length === 0) return;
-
-    const grouped = asignaturas.reduce((acc, asignatura) => {
-        const semestre = asignatura.semestre || "Sin semestre";
-        if (!acc[semestre]) acc[semestre] = [];
-        acc[semestre].push(asignatura);
-        return acc;
-    }, {});
-
-    const sortedSemestres = Object.keys(grouped).sort().reverse();
+export function renderAsignaturasBySemester(data) {
+    if (!data || typeof data !== "object") return;
 
     const hostContainer = document.querySelector(
         "span.row.asignaturas-expediente.clear.af_panelGroupLayout"
@@ -93,8 +100,12 @@ export function renderAsignaturasBySemester(asignaturas) {
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
 
+    // Ordenar semestres descendente (ej: 2025-2S > 2025-1S > 2024-2S)
+    const sortedSemestres = Object.keys(data).sort().reverse();
+
     for (const semestre of sortedSemestres) {
-        const materias = grouped[semestre];
+        const semestreData = data[semestre];
+        const materias = [...(semestreData.asignaturas || [])];
 
         // Ordenar por calificación descendente (null al final)
         materias.sort((a, b) => {
@@ -102,7 +113,6 @@ export function renderAsignaturasBySemester(asignaturas) {
             if (b.calificacion == null) return -1;
             return b.calificacion - a.calificacion;
         });
-
 
         const column = document.createElement("div");
         column.className = "sia-semester-column";
@@ -112,6 +122,13 @@ export function renderAsignaturasBySemester(asignaturas) {
         title.className = "sia-semester-title";
 
         const metrics = document.createElement("div");
+        metrics.className = "sia-semester-metrics";
+        metrics.innerHTML = `
+            <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
+            <span>Aprobados: ${semestreData.creditosAprobados}</span>
+            <span>Reprobados: ${semestreData.creditosReprobados}</span>
+        `;
+
         column.appendChild(title);
         column.appendChild(metrics);
 

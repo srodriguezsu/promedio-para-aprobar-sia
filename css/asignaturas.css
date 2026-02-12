@@ -1,10 +1,11 @@
 .sia-semester-wrapper {
     display: flex;
     gap: 24px;
-    overflow-x: auto;
+    overflow: auto;
     padding: 24px 16px;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e0 #f1f5f9;
+    max-height: 80vh;
 }
 
 .sia-semester-wrapper::-webkit-scrollbar {
@@ -36,6 +37,7 @@
     flex-shrink: 0;
     border: 1px solid rgba(226, 232, 240, 0.6);
     transition: box-shadow 0.2s ease;
+    height: fit-content;
 }
 
 .sia-semester-column:hover {
