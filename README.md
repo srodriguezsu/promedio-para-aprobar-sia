@@ -63,7 +63,8 @@ SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estu
 1. Clona o descarga este repositorio
 2. Abre el gestor de extensiones de tu navegador
 3. Activa el "Modo de desarrollador"
-4. Carga la carpeta del proyecto como extensión no empaquetada
+4. Ejectua ```npx vite build```
+5. Carga la carpeta dist extensión no empaquetada
 
 ## Uso
 

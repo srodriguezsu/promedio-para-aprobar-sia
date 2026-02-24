@@ -121,7 +121,7 @@ export function renderCreditosProgress(data, container) {
 
             <div class="sia-tipologia-metrics">
                 <span><strong>${aprobados}</strong> / ${exigidos} créditos</span>
-                <span>Faltan: ${pendientes} - Inscritos: ${inscritos}</span>
+                <span>Faltan: ${pendientes - inscritos} - Inscritos: ${inscritos}</span>
             </div>
         `;
 
