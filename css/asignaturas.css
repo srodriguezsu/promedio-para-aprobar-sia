@@ -6,6 +6,15 @@
     scrollbar-color: #cbd5e0 #f1f5f9;
     max-height: 70vh;
     height: fit-content;
+    scroll-behavior: smooth;
+    cursor: grab;
+    scroll-snap-type: x mandatory;
+}
+
+.sia-semester-wrapper.dragging,
+.sia-semester-wrapper.dragging * {
+    cursor: grabbing;
+    user-select: none;
 }
 
 .sia-semester-metrics {
@@ -51,6 +60,7 @@
     border: 1px solid rgba(226, 232, 240, 0.6);
     transition: box-shadow 0.2s ease;
     height: fit-content;
+    scroll-snap-align: start;
 }
 
 .sia-semester-column:hover {

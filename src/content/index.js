@@ -43,7 +43,7 @@ function mountApp() {
         <div id="sia-modal" class="sia-modal">
             <div class="sia-modal-content">
                 <div class="sia-tabs">
-                    <button class="sia-tab active" data-tab="gpa">Promedio</button>
+                    <button class="sia-tab active" data-tab="gpa">Calculadora Promedio</button>
                     <button class="sia-tab" data-tab="historia">Historia</button>
                     <button class="sia-tab" data-tab="creditos">Créditos</button>
                 </div>
@@ -94,32 +94,6 @@ function bindUIEvents() {
     });
 }
 
-/* =============================
-   DATA EXTRACTION
-============================= */
-
-function extractAndRenderDashboard() {
-    const dashboard = document.getElementById("sia-dashboard");
-    dashboard.innerHTML = "";
-
-    if (areGradeContainersAvailable()) {
-        const activities = extractActivitiesFromDom();
-        const subjectName = normalizeSubjectName(extractSubjectName());
-        const { currentGPA } = calculateCurrentGPA(activities);
-
-        dashboard.innerHTML += `
-            <h2>Promedio Actual</h2>
-            <p style="font-size: 24px;">${currentGPA}</p>
-        `;
-    }
-
-    renderHistoriaAcademica(dashboard);
-
-    if (areCreditosAvailable()) {
-        const creditos = extractCreditosFromDom();
-        renderCreditosProgress(dashboard);
-    }
-}
 
 /* =============================
    INIT
@@ -132,8 +106,8 @@ function initWhenReady() {
 
     observer = new MutationObserver(() => {
         if (
-            areGradeContainersAvailable() ||
-            areAsignaturasAvailable() ||
+            areGradeContainersAvailable() &&
+            areAsignaturasAvailable() &&
             areCreditosAvailable()
         ) {
             observer.disconnect();

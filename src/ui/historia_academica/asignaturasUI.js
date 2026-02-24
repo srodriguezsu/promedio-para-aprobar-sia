@@ -88,6 +88,35 @@ export function areAsignaturasAvailable() {
     return asignaturasRaw.length > 0;
 }
 
+function enableDragScroll(container) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    container.addEventListener("mousedown", (e) => {
+        isDown = true;
+        container.classList.add("dragging");
+        startX = e.pageX - container.offsetLeft;
+        scrollLeft = container.scrollLeft;
+    });
+
+    container.addEventListener("mouseleave", () => {
+        isDown = false;
+    });
+
+    container.addEventListener("mouseup", () => {
+        isDown = false;
+    });
+
+    container.addEventListener("mousemove", (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startX) * 1.2; // speed multiplier
+        container.scrollLeft = scrollLeft - walk;
+    });
+}
+
 export function renderHistoriaAcademica(container) {
     if (!container) return;
     container.innerHTML = "";
@@ -100,6 +129,8 @@ export function renderHistoriaAcademica(container) {
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
+
+    enableDragScroll(wrapper);
 
     const title = document.createElement("h2");
     title.textContent = "Historia Académica por Semestre";
