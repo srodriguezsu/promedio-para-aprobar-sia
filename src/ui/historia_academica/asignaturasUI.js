@@ -88,10 +88,15 @@ export function areAsignaturasAvailable() {
     return asignaturasRaw.length > 0;
 }
 
-export function renderAsignaturasBySemester(data, container) {
-    if (!data || typeof data !== "object") return;
-
+export function renderHistoriaAcademica(container) {
     if (!container) return;
+    container.innerHTML = "";
+    if (!areAsignaturasAvailable()) {
+        container.innerHTML = "<p>No hay historia académica disponible.</p>";
+        return;
+    }
+
+    const data = extractAsignaturasFromDom();
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";

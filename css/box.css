@@ -99,3 +99,34 @@
     font-size: 20px;
     cursor: pointer;
 }
+
+/* Tabs */
+.sia-tabs {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.sia-tab {
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+}
+
+.sia-tab.active {
+    border-bottom: 2px solid #0a2a66;
+    color: #0a2a66;
+}
+
+/* Tab content */
+.sia-tab-content {
+    display: none;
+}
+
+.sia-tab-content.active {
+    display: block;
+}

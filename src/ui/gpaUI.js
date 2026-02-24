@@ -1,4 +1,5 @@
 import { SELECTORS } from "../utils/selectors.js";
+import {calculateCurrentGPA, normalizeSubjectName} from "../domain/gpaCalculator.js";
 
 export function extractActivitiesFromDom() {
     const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
@@ -101,4 +102,24 @@ export function bindRefreshButton(onRefresh) {
 export function areGradeContainersAvailable() {
     const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
     return gradeContainers && gradeContainers.length > 0;
+}
+
+export function renderGpa(container) {
+    if (!container) return;
+    container.innerHTML = "";
+    if (!areGradeContainersAvailable()) {
+        container.innerHTML = "<p>No hay datos disponibles.</p>";
+        return;
+    }
+
+    const activities = extractActivitiesFromDom();
+    const subjectName = normalizeSubjectName(extractSubjectName());
+    const { currentGPA } = calculateCurrentGPA(activities);
+
+    container.innerHTML = `
+        <h2>${subjectName}</h2>
+        <p style="font-size: 28px; font-weight: bold;">
+            ${currentGPA}
+        </p>
+    `;
 }

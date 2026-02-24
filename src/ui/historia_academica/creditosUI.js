@@ -34,11 +34,14 @@ export function areCreditosAvailable() {
     return rows.length > 0;
 }
 
-export function renderCreditosProgress(data, container) {
-    if (!Array.isArray(data) || data.length === 0) return;
-
-
+export function renderCreditosProgress(container) {
     if (!container) return;
+    container.innerHTML = "";
+    if (!areCreditosAvailable()) {
+        container.innerHTML = "<p>No hay datos de créditos disponibles.</p>";
+        return;
+    }
+    const data = extractCreditosFromDom();
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-tipologias-wrapper";

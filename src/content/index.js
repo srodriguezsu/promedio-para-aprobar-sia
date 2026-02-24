@@ -7,12 +7,13 @@ import {
 import {
     extractActivitiesFromDom,
     extractSubjectName,
-    areGradeContainersAvailable
+    areGradeContainersAvailable,
+    renderGpa
 } from "../ui/gpaUI.js";
 
 import {
     areAsignaturasAvailable,
-    renderAsignaturasBySemester,
+    renderHistoriaAcademica,
     extractAsignaturasFromDom
 } from "../ui/historia_academica/asignaturasUI.js";
 
@@ -23,7 +24,6 @@ import {
 } from "../ui/historia_academica/creditosUI.js";
 
 let observer;
-let extractedData = null;
 
 /* =============================
    ROOT + FLOATING BUTTON
@@ -42,7 +42,15 @@ function mountApp() {
 
         <div id="sia-modal" class="sia-modal">
             <div class="sia-modal-content">
-                <div id="sia-dashboard"></div>
+                <div class="sia-tabs">
+                    <button class="sia-tab active" data-tab="gpa">Promedio</button>
+                    <button class="sia-tab" data-tab="historia">Historia</button>
+                    <button class="sia-tab" data-tab="creditos">Créditos</button>
+                </div>
+    
+                <div class="sia-tab-content active" id="tab-gpa"></div>
+                <div class="sia-tab-content" id="tab-historia"></div>
+                <div class="sia-tab-content" id="tab-creditos"></div>
             </div>
         </div>
     `;
@@ -57,20 +65,33 @@ function bindUIEvents() {
     const modal = document.getElementById("sia-modal");
 
     btn.addEventListener("click", () => {
-
+        modal.classList.toggle("active");
         if (modal.classList.contains("active")) {
-            modal.classList.remove("active");
-            return;
-        } else {
-            modal.classList.add("active");
-        }
-    
+            const tab_historia = document.getElementById("tab-historia");
+            renderHistoriaAcademica(tab_historia)
 
-        if (!extractedData) {
-            extractAndRenderDashboard();
+            const tab_creditos = document.getElementById("tab-creditos");
+            renderCreditosProgress(tab_creditos)
+
+            const tab_gpa = document.getElementById("tab-gpa");
+            renderGpa(tab_gpa)
+
         }
     });
 
+    const tabs = document.querySelectorAll(".sia-tab");
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".sia-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".sia-tab-content").forEach(c => c.classList.remove("active"));
+
+            tab.classList.add("active");
+
+            const target = document.getElementById(`tab-${tab.dataset.tab}`);
+            target.classList.add("active");
+        });
+    });
 }
 
 /* =============================
@@ -92,17 +113,12 @@ function extractAndRenderDashboard() {
         `;
     }
 
-    if (areAsignaturasAvailable()) {
-        const semestres = extractAsignaturasFromDom();
-        renderAsignaturasBySemester(semestres, dashboard);
-    }
+    renderHistoriaAcademica(dashboard);
 
     if (areCreditosAvailable()) {
         const creditos = extractCreditosFromDom();
-        renderCreditosProgress(creditos, dashboard);
+        renderCreditosProgress(dashboard);
     }
-
-    extractedData = true;
 }
 
 /* =============================
