@@ -1,3 +1,4 @@
+import {areCreditosAvailable, extractCreditosFromDom} from "../../domain/historiaAcademica.js";
 
 export function renderCreditosProgress(container) {
     if (!container) return;
