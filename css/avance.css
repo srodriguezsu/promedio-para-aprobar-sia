@@ -1,0 +1,287 @@
+/* Avance Progress Styles */
+
+.sia-avance-wrapper {
+    padding: 24px 0;
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-color: #cbd5e0 #f1f5f9;
+}
+
+.sia-avance-header {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 24px 0;
+    padding: 0;
+    text-align: center;
+    letter-spacing: -0.02em;
+}
+
+/* Statistics Cards */
+.sia-avance-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.sia-stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 12px -4px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.sia-stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+}
+
+.sia-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(102, 126, 234, 0.4);
+}
+
+.sia-stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 12px -4px rgba(245, 87, 108, 0.3);
+}
+
+.sia-stat-card:nth-child(2):hover {
+    box-shadow: 0 12px 24px -8px rgba(245, 87, 108, 0.4);
+}
+
+.sia-stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 4px 12px -4px rgba(79, 172, 254, 0.3);
+}
+
+.sia-stat-card:nth-child(3):hover {
+    box-shadow: 0 12px 24px -8px rgba(79, 172, 254, 0.4);
+}
+
+.sia-stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.sia-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.sia-stat-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+/* Chart Container */
+.sia-chart-container {
+    background: white;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+    position: relative;
+}
+
+.sia-chart-container canvas {
+    max-height: 400px;
+    width: 100% !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sia-avance-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .sia-stat-value {
+        font-size: 24px;
+    }
+
+    .sia-chart-container {
+        padding: 16px;
+    }
+
+    .sia-chart-container canvas {
+        max-height: 300px;
+    }
+}
+
+/* Scrollbar Styling */
+.sia-avance-wrapper::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sia-avance-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.sia-avance-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+.sia-avance-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Loading State */
+.sia-avance-wrapper.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+}
+
+.sia-avance-wrapper.loading::after {
+    content: 'Cargando datos...';
+    font-size: 16px;
+    color: #64748b;
+}
+
+/* Empty State */
+.sia-avance-wrapper p {
+    text-align: center;
+    color: #64748b;
+    font-size: 16px;
+    padding: 40px;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e0;
+}
+
+/* Progress Table */
+.sia-progress-table-container {
+    margin-top: 32px;
+    background: white;
+    border: 1px solid #edf2f7;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+}
+
+.sia-progress-table-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 16px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.sia-progress-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.sia-progress-table thead {
+    background: #f8fafc;
+}
+
+.sia-progress-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.sia-progress-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+.sia-progress-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.sia-progress-table tbody tr.proyeccion-row {
+    background-color: #fff7ed;
+    font-style: italic;
+}
+
+.sia-progress-table tbody tr.proyeccion-row:hover {
+    background-color: #ffedd5;
+}
+
+.sia-progress-table td {
+    padding: 12px 16px;
+    color: #1e293b;
+}
+
+.sia-progress-table td.semestre-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.sia-progress-table td.creditos-semestre {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.sia-progress-table td.creditos-acumulado {
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.sia-progress-table td.porcentaje {
+    font-weight: 600;
+    color: #7c3aed;
+}
+
+.sia-progress-table tbody tr.proyeccion-row td {
+    color: #92400e;
+}
+
+.sia-progress-table tbody tr.proyeccion-row td.creditos-semestre {
+    color: #ea580c;
+}
+
+.sia-progress-table tbody tr.proyeccion-row td.creditos-acumulado {
+    color: #c2410c;
+}
+
+.sia-progress-table tbody tr.proyeccion-row td.porcentaje {
+    color: #9a3412;
+}
+
+@media (max-width: 768px) {
+    .sia-progress-table-container {
+        padding: 16px;
+        overflow-x: auto;
+    }
+
+    .sia-progress-table {
+        font-size: 12px;
+    }
+
+    .sia-progress-table th,
+    .sia-progress-table td {
+        padding: 8px 12px;
+    }
+}
+

@@ -12,7 +12,8 @@
           "css/box.css",
             "css/required-grade.css",
               "css/asignaturas.css",
-                "css/creditos.css"
+                "css/creditos.css",
+                  "css/avance.css"
 ]
 
     }

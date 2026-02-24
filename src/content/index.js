@@ -11,6 +11,7 @@ import {
     renderCreditosProgress
 } from "../ui/historia_academica/creditosUI.js";
 import {areAsignaturasAvailable, areCreditosAvailable} from "../domain/historiaAcademica.js";
+import {renderAvanceProgress} from "../ui/historia_academica/avanceUI.js";
 
 let observer;
 
@@ -34,11 +35,13 @@ function mountApp() {
                 <div class="sia-tabs">
                     <button class="sia-tab active" data-tab="gpa">Calculadora Promedio</button>
                     <button class="sia-tab" data-tab="historia">Historia</button>
+                    <button class="sia-tab" data-tab="avance">Avance</button>
                     <button class="sia-tab" data-tab="creditos">Créditos</button>
                 </div>
     
                 <div class="sia-tab-content active" id="tab-gpa"></div>
                 <div class="sia-tab-content" id="tab-historia"></div>
+                <div class="sia-tab-content" id="tab-avance"></div>
                 <div class="sia-tab-content" id="tab-creditos"></div>
             </div>
         </div>
@@ -65,6 +68,8 @@ function bindUIEvents() {
             const tab_gpa = document.getElementById("tab-gpa");
             renderGpa(tab_gpa)
 
+            const tab_avance = document.getElementById("tab-avance");
+            renderAvanceProgress(tab_avance)
         }
     });
 
