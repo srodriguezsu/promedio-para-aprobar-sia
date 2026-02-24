@@ -1,25 +1,15 @@
 import {
-    calculateCurrentGPA,
-    calculateRequiredGradePerActivity,
-    normalizeSubjectName
-} from "../domain/gpaCalculator.js";
-
-import {
-    extractActivitiesFromDom,
-    extractSubjectName,
     areGradeContainersAvailable,
     renderGpa
 } from "../ui/gpaUI.js";
 
 import {
     areAsignaturasAvailable,
-    renderHistoriaAcademica,
-    extractAsignaturasFromDom
+    renderHistoriaAcademica
 } from "../ui/historia_academica/asignaturasUI.js";
 
 import {
     areCreditosAvailable,
-    extractCreditosFromDom,
     renderCreditosProgress
 } from "../ui/historia_academica/creditosUI.js";
 
@@ -106,8 +96,8 @@ function initWhenReady() {
 
     observer = new MutationObserver(() => {
         if (
-            areGradeContainersAvailable() &&
-            areAsignaturasAvailable() &&
+            areGradeContainersAvailable() ||
+            areAsignaturasAvailable() ||
             areCreditosAvailable()
         ) {
             observer.disconnect();

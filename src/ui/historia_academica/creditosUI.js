@@ -1,38 +1,3 @@
-export function extractCreditosFromDom() {
-    const rows = document.querySelectorAll(
-    "#pt1\\:r1\\:0\\:t10\\:\\:db table.af_table_data-table tbody > tr.af_table_data-row"
-    );
-
-    const creditos = [];
-
-    for (const row of rows) {
-        const componente = row.querySelector(
-            "td.af_column_data-cell.text-left, td.af_column_banded-data-cell.text-left"
-        )?.textContent.trim() || "";
-
-        const creditosCells = row.querySelectorAll(
-            "td.af_column_data-cell.text-center, td.af_column_banded-data-cell.text-center"
-        );
-
-        creditos.push({
-            componente,
-            exigidos: creditosCells[0] ? parseInt(creditosCells[0].textContent.trim()) : 0,
-            aprobados: creditosCells[1] ? parseInt(creditosCells[1].textContent.trim()) : 0,
-            pendientes: creditosCells[2] ? parseInt(creditosCells[2].textContent.trim()) : 0,
-            inscritos: creditosCells[3] ? parseInt(creditosCells[3].textContent.trim()) : 0,
-            cursados: creditosCells[4] ? parseInt(creditosCells[4].textContent.trim()) : 0
-        });
-    }
-
-    return creditos;
-}
-
-export function areCreditosAvailable() {
-    const rows = document.querySelectorAll(
-        "#pt1\\:r1\\:0\\:t10\\:\\:db table.af_table_data-table tbody > tr.af_table_data-row"
-    );
-    return rows.length > 0;
-}
 
 export function renderCreditosProgress(container) {
     if (!container) return;
