@@ -42,7 +42,6 @@ function mountApp() {
 
         <div id="sia-modal" class="sia-modal">
             <div class="sia-modal-content">
-                <button id="sia-close-btn" class="sia-close-btn">✕</button>
                 <div id="sia-dashboard"></div>
             </div>
         </div>
@@ -56,19 +55,22 @@ function mountApp() {
 function bindUIEvents() {
     const btn = document.getElementById("sia-floating-btn");
     const modal = document.getElementById("sia-modal");
-    const close = document.getElementById("sia-close-btn");
 
     btn.addEventListener("click", () => {
-        modal.classList.add("active");
+
+        if (modal.classList.contains("active")) {
+            modal.classList.remove("active");
+            return;
+        } else {
+            modal.classList.add("active");
+        }
+    
 
         if (!extractedData) {
             extractAndRenderDashboard();
         }
     });
 
-    close.addEventListener("click", () => {
-        modal.classList.remove("active");
-    });
 }
 
 /* =============================

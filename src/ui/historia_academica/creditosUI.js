@@ -47,7 +47,7 @@ export function renderCreditosProgress(data, container) {
     title.textContent = "Créditos por Tipología";
     title.className = "sia-tipologias-header";
 
-    wrapper.appendChild(title);
+    container.appendChild(title);
 
     // 🔹 Separar totales
     const total = data.find(

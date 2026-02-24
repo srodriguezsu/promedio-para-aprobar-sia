@@ -100,7 +100,7 @@ export function renderAsignaturasBySemester(data, container) {
     title.textContent = "Historia Académica por Semestre";
     title.className = "sia-semester-header";
 
-    wrapper.appendChild(title);
+    container.appendChild(title);
 
     // Ordenar semestres descendente (ej: 2025-2S > 2025-1S > 2024-2S)
     const sortedSemestres = Object.keys(data).sort().reverse();

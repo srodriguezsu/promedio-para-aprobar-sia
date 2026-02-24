@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SIA UNAL Pro",
-  "description": "SIA UNAL Pro es una extensión de navegador que mejora la experiencia de los estudiantes en el Sistema de Información Académica (SIA) de la Universidad Nacional de Colombia.",
+  "description": "SIA UNAL Pro es una extensión de navegador que mejora el Sistema de Información Académica de la Universidad Nacional de Colombia.",
   "version": "1.0.1",
   "permissions": [],
   "content_scripts": [

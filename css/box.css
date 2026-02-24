@@ -84,9 +84,10 @@
     width: 95vw;
     height: 95vh;
     border-radius: 12px;
-    padding: 30px;
+    padding: 4rem;
     overflow-y: auto;
     position: relative;
+    scrollbar-color: #cbd5e0 #f1f5f9;
 }
 
 .sia-close-btn {

@@ -1,16 +1,10 @@
-.container-wrapper .right-sidebar .resultado .wrapper .af_panelGridLayout{
-    position: relative;
-    background-color: rebeccapurple;
-    height: fit-content;
-    min-height: 100vh;
-}
 .sia-semester-wrapper {
     display: flex;
     gap: 24px;
     overflow: auto;
     padding: 24px 16px;
     scrollbar-color: #cbd5e0 #f1f5f9;
-    max-height: 90vh;
+    max-height: 70vh;
     height: fit-content;
 }
 
