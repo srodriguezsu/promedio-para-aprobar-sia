@@ -4,14 +4,13 @@ import {
 } from "../ui/gpaUI.js";
 
 import {
-    areAsignaturasAvailable,
     renderHistoriaAcademica
 } from "../ui/historia_academica/asignaturasUI.js";
 
 import {
-    areCreditosAvailable,
     renderCreditosProgress
 } from "../ui/historia_academica/creditosUI.js";
+import {areAsignaturasAvailable, areCreditosAvailable} from "../domain/historiaAcademica.js";
 
 let observer;
 
