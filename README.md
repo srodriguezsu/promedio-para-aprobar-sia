@@ -1,3 +1,5 @@
+![Logo SIA UNAL Pro](https://raw.githubusercontent.com/srodriguezsu/sia-pro/refs/heads/master/icon512.png)
+
 # SIA UNAL Pro - Extensión de Navegador
 
 ## Objetivo del Proyecto
