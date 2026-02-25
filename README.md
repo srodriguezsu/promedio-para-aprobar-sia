@@ -2,7 +2,8 @@
 
 ## Objetivo del Proyecto
 
-SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estudiantes de la Universidad Nacional de Colombia (UNAL) en tiempo real mientras navegan por el sistema de calificaciones.
+SIA UNAL Pro calcula automáticamente el promedio de cada asignatura de los estudiantes de la Universidad Nacional de Colombia (UNAL) mientras navegan por el sistema de calificaciones y estima la calificación mínima necesaria en las actividades pendientes para alcanzar un promedio final de 3.0, facilitando la planificación académica y la toma de decisiones.
+También incorpora un rediseño de la historia académica, presentando de manera clara y organizada el avance del estudiante, las calificaciones por semestre y el progreso por componente curricular.
 
 ## Características Principales
 
@@ -15,15 +16,6 @@ SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estu
 - Determina la calificación mínima necesaria en actividades pendientes para alcanzar un promedio de **3.0**
 - Asume que todas las actividades restantes reciben la misma calificación
 - Identifica si es posible pasar o no (marca con 💀 si no es posible)
-
-### 🔄 Botón de Actualización
-- Permite recalcular el promedio en cualquier momento
-- Actualiza dinámicamente todos los valores sin recargar la página
-
-### 📌 Interfaz Limpia y Minimalista
-- Caja flotante fija en la esquina superior derecha
-- Tema oscuro para mejor legibilidad
-- Diseño responsivo y no invasivo
 
 ## Cómo Funciona
 
@@ -69,13 +61,6 @@ SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estu
 2. La extensión se activará automáticamente cuando la página esté lista
 3. Verás una caja flotante en la parte inferior derecha
 4. En la caja encontrarás los distintos módulos disponibles
-
-## Arquitectura
-
-- **domain/** contiene solo lógica pura (sin DOM)
-- **ui/** contiene solo manipulación de DOM
-- **content/index.js** orquesta el flujo y usa un `MutationObserver` para inicializar de forma segura
-- Se usan **ES Modules** compatibles con Manifest V3
 
 
 ## Licencia
