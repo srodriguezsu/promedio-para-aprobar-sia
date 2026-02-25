@@ -40,7 +40,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
             labels,
             datasets: [
                 {
-                    label: "Créditos Aprobados",
+                    label: "Avance",
                     data: dataReal,
                     borderColor: "#4CAF50",
                     backgroundColor: "rgba(76, 175, 80, 0.1)",
@@ -63,15 +63,6 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                     pointRadius: 5,
                     pointHoverRadius: 7,
                     pointBackgroundColor: "#FF9800"
-                },
-                {
-                    label: "Meta Total",
-                    data: Array(labels.length).fill(totalExigidos),
-                    borderColor: "#f44336",
-                    borderWidth: 2,
-                    borderDash: [10, 5],
-                    pointRadius: 0,
-                    fill: false
                 }
             ]
         },
@@ -110,7 +101,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                                 label += ': ';
                             }
                             if (context.parsed.y !== null) {
-                                label += context.parsed.y + ' créditos';
+                                label += ((context.parsed.y / totalExigidos) * 100).toFixed(1) + '% (' + context.parsed.y + ' créditos)';
                             }
                             return label;
                         }
