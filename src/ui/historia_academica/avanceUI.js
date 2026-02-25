@@ -42,27 +42,27 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                 {
                     label: "Avance",
                     data: dataReal,
-                    borderColor: "#4CAF50",
-                    backgroundColor: "rgba(76, 175, 80, 0.1)",
+                    borderColor: "#0f6d59",
+                    backgroundColor: "rgba(15,109,89,0.1)",
                     borderWidth: 3,
                     tension: 0.3,
                     fill: true,
                     pointRadius: 5,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: "#4CAF50"
+                    pointBackgroundColor: "#0f6d59"
                 },
                 {
                     label: "Proyección",
                     data: dataProy,
-                    borderColor: "#FF9800",
-                    backgroundColor: "rgba(255, 152, 0, 0.1)",
+                    borderColor: "#f3c231",
+                    backgroundColor: "rgba(243,194,49,0.1)",
                     borderDash: [5, 5],
                     borderWidth: 3,
                     tension: 0.3,
                     fill: true,
                     pointRadius: 5,
                     pointHoverRadius: 7,
-                    pointBackgroundColor: "#FF9800"
+                    pointBackgroundColor: "#f3c231"
                 }
             ]
         },

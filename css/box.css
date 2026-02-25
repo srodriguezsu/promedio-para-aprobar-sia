@@ -1,68 +1,32 @@
-#gpa-extension-box {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #1e1e2e;
-    color: #fff;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-#gpa-extension-box .gpa-value {
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 6px;
-    text-align: center;
-}
-
-#gpa-refresh-btn {
-    margin-top: 10px;
-    padding: 6px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: bold;
-    width: 100%;
-    transition: background-color 0.2s ease;
-}
-
-#gpa-refresh-btn:hover {
-    background-color: #45a049;
-}
-
-#sia-unal-root {
-    all: initial;
-    font-family: system-ui, sans-serif;
-}
-
 /* Floating Button */
 .sia-floating-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 999999;
-    width: 56px;
-    height: 56px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
     border: none;
-    color: white;
-    font-size: 22px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     transition: transform 0.2s ease;
-    overflow:hidden;
-    padding:0;
-    border:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    overflow: hidden;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent; /* important */
+}
+
+/* Remove box-shadow from button */
+
+.sia-floating-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+
+    /* Shadow that follows PNG shape */
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
 }
 
 .sia-floating-btn:hover {
@@ -109,7 +73,7 @@
 .sia-tabs {
     display: flex;
     gap: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #e2e8f0;
     margin-bottom: 20px;
 }
 
@@ -119,12 +83,20 @@
     background: transparent;
     cursor: pointer;
     font-weight: 500;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.sia-tab:hover {
+    color: #0f6d59;
+    background: rgba(15, 109, 89, 0.05);
 }
 
 .sia-tab.active {
-    border-bottom: 2px solid #0a2a66;
-    color: #0a2a66;
+    border-bottom: 3px solid #0f6d59;
+    color: #0f6d59;
+    background: rgba(15, 109, 89, 0.08);
 }
 
 /* Tab content */

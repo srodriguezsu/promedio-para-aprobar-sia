@@ -143,7 +143,7 @@
     padding: 4px 8px;
     border-radius: 20px;
     font-size: 11px;
-    color: #2563eb;
+    color: #0f6d59;
     font-weight: 600;
 }
 
@@ -161,9 +161,10 @@
 }
 
 .sia-asig-estado.aprobada {
-    color: #0b5e42;
-    background: linear-gradient(145deg, #e6f7ec, #dcfce7);
-    border: 1px solid rgba(34, 197, 94, 0.2);
+    color: #ffffff;
+    background: linear-gradient(145deg, #0f6d59, #0d5f4d);
+    border: 1px solid rgba(15, 109, 89, 0.3);
+    box-shadow: 0 2px 8px rgba(15, 109, 89, 0.2);
 }
 
 .sia-asig-estado.aprobada::before {
@@ -184,11 +185,6 @@
     font-size: 16px;
 }
 
-/* Special styling for courses without numeric grade */
-.sia-asig-estado.aprobada:has(span:contains("-")) {
-    background: linear-gradient(145deg, #f1f5f9, #e6edf5);
-    color: #334155;
-}
 
 /* Responsive improvements */
 @media (max-width: 768px) {
@@ -227,7 +223,7 @@
 
 /* Improve focus states for accessibility */
 .sia-asignatura-card:focus-visible {
-    outline: 2px solid #3b82f6;
+    outline: 2px solid #0f6d59;
     outline-offset: 2px;
 }
 

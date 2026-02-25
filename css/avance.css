@@ -141,16 +141,15 @@
 }
 
 .sia-progress-table tbody tr:hover {
-    background-color: #f8fafc;
+    background-color: rgba(13, 95, 77, 0.1);
 }
 
 .sia-progress-table tbody tr.proyeccion-row {
-    background-color: #fff7ed;
     font-style: italic;
 }
 
 .sia-progress-table tbody tr.proyeccion-row:hover {
-    background-color: #ffedd5;
+    background-color: rgba(243, 194, 49, 0.1);
 }
 
 .sia-progress-table td {
@@ -163,36 +162,16 @@
     color: #0f172a;
 }
 
-.sia-progress-table td.creditos-semestre {
-    color: #4CAF50;
+.sia-progress-table td {
+    color: #0f6d59;
     font-weight: 600;
 }
 
-.sia-progress-table td.creditos-acumulado {
-    font-weight: 600;
-    color: #2563eb;
-}
-
-.sia-progress-table td.porcentaje {
-    font-weight: 600;
-    color: #7c3aed;
-}
 
 .sia-progress-table tbody tr.proyeccion-row td {
-    color: #92400e;
+    color: #c0564b;
 }
 
-.sia-progress-table tbody tr.proyeccion-row td.creditos-semestre {
-    color: #ea580c;
-}
-
-.sia-progress-table tbody tr.proyeccion-row td.creditos-acumulado {
-    color: #c2410c;
-}
-
-.sia-progress-table tbody tr.proyeccion-row td.porcentaje {
-    color: #9a3412;
-}
 
 @media (max-width: 768px) {
     .sia-progress-table-container {
