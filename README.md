@@ -43,13 +43,10 @@ SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estu
 │   ├── content/
 │   │   └── index.js             # Entry point (content script)
 │   ├── domain/
-│   │   └── gpaCalculator.js     # Lógica pura de GPA (sin DOM)
-│   ├── ui/
-│   │   └── gpaUI.js             # Manipulación de DOM
-│   └── utils/
-│       └── selectors.js         # Selectores y constantes
-├── styles.css                   # Importa estilos modulares
-├── manifest.json                # Configuración de la extensión (MV3)
+│   │   └── gpaCalculator.js     # Extracción de datos y lógica de cálculo
+│   └── ui/
+│        └── gpaUI.js             # Manipulación de DOM, renderizado de los modulos
+├── manifest.json                # Configuración de la extensión
 └── README.md                    # Este archivo
 ```
 
@@ -64,14 +61,14 @@ SIA UNAL Pro calcula automáticamente el **promedio de cada asignatura** de estu
 2. Abre el gestor de extensiones de tu navegador
 3. Activa el "Modo de desarrollador"
 4. Ejectua ```npx vite build```
-5. Carga la carpeta dist extensión no empaquetada
+5. Carga la carpeta dist como extensión no empaquetada
 
 ## Uso
 
 1. Navega a la página de calificaciones de UNAL
 2. La extensión se activará automáticamente cuando la página esté lista
-3. Verás una caja flotante con tu promedio calculado
-4. Presiona el botón **🔄 Calcular** para actualizar los valores en cualquier momento
+3. Verás una caja flotante en la parte inferior derecha
+4. En la caja encontrarás los distintos módulos disponibles
 
 ## Arquitectura
 
