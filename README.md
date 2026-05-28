@@ -1,4 +1,4 @@
-![Logo SIA UNAL Pro](https://raw.githubusercontent.com/srodriguezsu/sia-pro/refs/heads/master/icon512.png)
+![Logo SIA UNAL Pro](https://raw.githubusercontent.com/srodriguezsu/sia-pro/refs/heads/master/public/icon.png)
 
 # SIA UNAL Pro - Extensión de Navegador
 

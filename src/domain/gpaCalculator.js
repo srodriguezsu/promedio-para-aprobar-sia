@@ -1,4 +1,4 @@
-export function normalizeSubjectName(subjectName, maxLength = 20) {
+export function normalizeSubjectName(subjectName, maxLength = 100) {
     if (!subjectName) return "N/A";
     const trimmed = subjectName.trim();
     if (trimmed.length <= maxLength) return trimmed;
