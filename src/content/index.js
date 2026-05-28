@@ -27,7 +27,7 @@ function mountApp() {
 
     root.innerHTML = `
         <button id="sia-floating-btn" class="sia-floating-btn">
-            <img src="https://raw.githubusercontent.com/srodriguezsu/sia-pro/refs/heads/master/icon.png" alt="SIA-PRO" class="sia-floating-icon" style="max-width:100%;max-height:100%;object-fit:contain;display:block;" />
+            <img src="https://raw.githubusercontent.com/srodriguezsu/sia-pro/refs/heads/master/public/icon.png" alt="SIA-PRO" class="sia-floating-icon" style="max-width:100%;max-height:100%;object-fit:contain;display:block;" />
         </button>
 
         <div id="sia-modal" class="sia-modal">
