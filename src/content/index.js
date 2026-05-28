@@ -10,8 +10,8 @@ import {
 import {
     renderCreditosProgress
 } from "../ui/historia_academica/creditosUI.js";
-import {areAsignaturasAvailable, areCreditosAvailable} from "../domain/historiaAcademica.js";
-import {renderAvanceProgress} from "../ui/historia_academica/avanceUI.js";
+import { areAsignaturasAvailable, areCreditosAvailable } from "../domain/historiaAcademica.js";
+import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
 
 let observer;
 
@@ -100,8 +100,8 @@ function initWhenReady() {
 
     observer = new MutationObserver(() => {
         if (
-            areGradeContainersAvailable() ||
-            areAsignaturasAvailable() ||
+            areGradeContainersAvailable() &&
+            areAsignaturasAvailable() &&
             areCreditosAvailable()
         ) {
             observer.disconnect();
