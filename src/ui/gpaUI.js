@@ -108,7 +108,7 @@ export function renderGpa(container) {
     if (!container) return;
     container.innerHTML = "";
     if (!areGradeContainersAvailable()) {
-        container.innerHTML = "<p>No hay datos disponibles.</p>";
+        container.innerHTML = "<p>No hay datos disponibles.<br><br>Navega a <b>Información académica > Mis calificaciones</b> y selecciona una asignatura.</p>";
         return;
     }
 

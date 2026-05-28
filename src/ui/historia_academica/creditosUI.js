@@ -1,10 +1,10 @@
-import {areCreditosAvailable, extractCreditosFromDom} from "../../domain/historiaAcademica.js";
+import { areCreditosAvailable, extractCreditosFromDom } from "../../domain/historiaAcademica.js";
 
 export function renderCreditosProgress(container) {
     if (!container) return;
     container.innerHTML = "";
     if (!areCreditosAvailable()) {
-        container.innerHTML = "<p>No hay datos de créditos disponibles.</p>";
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
     }
     const data = extractCreditosFromDom();

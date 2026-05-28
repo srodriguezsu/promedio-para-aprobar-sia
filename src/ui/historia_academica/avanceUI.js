@@ -95,7 +95,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                         size: 13
                     },
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             let label = context.dataset.label || '';
                             if (label) {
                                 label += ': ';
@@ -165,11 +165,11 @@ export function renderAvanceProgress(container) {
     container.innerHTML = "";
 
     if (!areAsignaturasAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.</p>";
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
     }
     if (!areCreditosAvailable()) {
-        container.innerHTML = "<p>No hay datos de créditos disponibles.</p>";
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
     }
 

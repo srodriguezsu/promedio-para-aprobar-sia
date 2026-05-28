@@ -1,4 +1,4 @@
-import {areAsignaturasAvailable, extractAsignaturasFromDom} from "../../domain/historiaAcademica.js";
+import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../domain/historiaAcademica.js";
 
 function enableDragScroll(container) {
     let isDown = false;
@@ -33,7 +33,7 @@ export function renderHistoriaAcademica(container) {
     if (!container) return;
     container.innerHTML = "";
     if (!areAsignaturasAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.</p>";
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
     }
 
@@ -74,7 +74,7 @@ export function renderHistoriaAcademica(container) {
         const metrics = document.createElement("div");
         metrics.className = "sia-semester-metrics";
 
-        if (semestreData.creditosReprobados > 0){
+        if (semestreData.creditosReprobados > 0) {
             metrics.innerHTML = `
                 <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
                 <span>Créditos Reprobados: ${semestreData.creditosReprobados}</span>
@@ -87,7 +87,7 @@ export function renderHistoriaAcademica(container) {
         }
 
 
-        
+
 
         column.appendChild(title);
         column.appendChild(metrics);
