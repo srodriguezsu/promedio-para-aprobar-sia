@@ -225,7 +225,7 @@ export function renderExportTab(container) {
                 });
             });
             const csv = convertToCSV(headers, rows);
-            downloadBlob(csv, "sia_pro_calificaciones_gpa.csv", "text/csv;charset=utf-8;");
+            downloadBlob(csv, "sia_pro_calificaciones.csv", "text/csv;charset=utf-8;");
         });
     }
 

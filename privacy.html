@@ -19,26 +19,34 @@
 <body>
 
 <h1>Política de Privacidad – SIA UNAL Pro</h1>
-<p><strong>Última actualización:</strong> 25 de febrero de 2026</p>
+<p><strong>Última actualización:</strong> 9 de junio de 2026</p>
 
-<p>SIA UNAL Pro es una extensión para Google Chrome diseñada para mejorar la visualización y análisis de calificaciones dentro del sistema académico de la Universidad Nacional de Colombia.</p>
+<p>SIA UNAL Pro es una extensión para Google Chrome diseñada para mejorar la visualización, análisis de calificaciones, organización de horarios y planeación académica dentro del sistema académico de la Universidad Nacional de Colombia.</p>
 
 <h2>1. Recolección de información</h2>
-<p>SIA UNAL Pro no recopila, almacena, transmite ni comparte datos personales de los usuarios.</p>
-<p>La extensión únicamente lee información visible en la página oficial del sistema académico mediante el uso de document.querySelector y procesa los datos localmente en el navegador.</p>
+<p>SIA UNAL Pro no recopila, almacena, transmite ni comparte datos personales de los usuarios en servidores externos.</p>
+<p>La extensión únicamente lee información visible en la página oficial del sistema académico mediante el uso de selectores del DOM y procesa los datos localmente en el navegador del usuario.</p>
 
 <h2>2. Uso de la información</h2>
-<p>La información visible en la página se utiliza exclusivamente para:</p>
+<p>La información procesada se utiliza exclusivamente para:</p>
 <ul>
-    <li>Calcular promedios de asignaturas.</li>
-    <li>Estimar la calificación mínima necesaria para alcanzar un promedio de 3.0.</li>
-    <li>Mejorar la visualización del avance académico.</li>
+    <li>Calcular promedios de asignaturas y simular calificaciones parciales.</li>
+    <li>Estimar la calificación mínima necesaria para aprobar materias en curso.</li>
+    <li>Mejorar la visualización del avance académico y la distribución de créditos.</li>
+    <li>Simular y organizar horarios de clases, detectando posibles conflictos o traslapes entre grupos de asignaturas seleccionadas.</li>
+    <li>Exportar datos académicos (historia académica, calificaciones del simulador de promedio y horarios) a archivos locales en formato CSV.</li>
 </ul>
 
 <p>El procesamiento ocurre completamente en el navegador del usuario.</p>
 
 <h2>3. Almacenamiento y transmisión</h2>
-<p>La extensión no envía información a servidores externos, no utiliza APIs externas y no almacena datos personales.</p>
+<p>La extensión almacena localmente en el navegador (`localStorage`) los siguientes datos para persistir el estado de la sesión y mejorar la experiencia de uso:</p>
+<ul>
+    <li>El historial académico y avance de créditos (guardados localmente para evitar la carga repetitiva de datos).</li>
+    <li>Las calificaciones simuladas por el usuario en el módulo GPA.</li>
+    <li>Las asignaturas y grupos seleccionados en el simulador de horario.</li>
+</ul>
+<p>La extensión no envía información a servidores externos, no utiliza APIs externas de terceros ni comparte estos datos con nadie.</p>
 
 <h2>4. Servicios de terceros</h2>
 <p>SIA UNAL Pro no utiliza servicios de analítica, seguimiento ni terceros que procesen datos.</p>

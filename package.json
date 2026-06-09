@@ -1,10 +1,11 @@
 {
   "name": "sia-unal-pro",
-  "version": "1.0.4",
+  "version": "1.2.0",
   "description": "",
   "main": "content.js",
   "type": "module",
   "scripts": {
+    "build": "npx vite build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "private": true,
