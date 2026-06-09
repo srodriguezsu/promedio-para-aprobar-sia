@@ -237,7 +237,6 @@ export function extractAsignaturaParaCursar() {
 
     const subjectDetails = document.querySelectorAll(SELECTORS.subjectDetailsToEnrroll);
 
-    console.log("Detalles de la asignatura:");
     subjectDetails.forEach((detail, index) => {
         const text = detail.textContent.trim()
         
