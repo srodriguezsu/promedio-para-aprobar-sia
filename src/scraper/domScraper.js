@@ -280,8 +280,6 @@ export function extractAsignaturaParaCursar() {
 
             if (text.includes("Profesor")) {
                 group.profesor = text.replace("Profesor:", "").trim();
-            } if (text.includes("Facultad")) {
-                group.facultad = text.replace("Facultad:", "").trim();
             } if (text.includes("Horarios/Aula")) {
 
                 const horarios = [];
