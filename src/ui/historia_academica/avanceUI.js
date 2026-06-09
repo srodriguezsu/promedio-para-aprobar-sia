@@ -9,6 +9,12 @@ import {
     extractAsignaturasFromDom,
     extractCreditosFromDom
 } from "../../scraper/domScraper.js";
+import {
+    saveCachedAsignaturas,
+    loadCachedAsignaturas,
+    saveCachedCreditos,
+    loadCachedCreditos
+} from "../../domain/historyManager.js";
 
 
 
@@ -187,14 +193,26 @@ export function renderAvanceProgress(container) {
     if (!container) return;
     container.innerHTML = "";
 
-    // Confirm that required scraped information from SIA is available
-    if (!areAsignaturasAvailable() || !areCreditosAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
-        return;
+    let creditos = null;
+    let asignaturas = null;
+
+    // Try to scrape first if currently viewing the history page
+    if (areAsignaturasAvailable() && areCreditosAvailable()) {
+        creditos = extractCreditosFromDom();
+        asignaturas = extractAsignaturasFromDom();
+        saveCachedCreditos(creditos);
+        saveCachedAsignaturas(asignaturas);
+    } else {
+        // Fallback to loaded cache
+        creditos = loadCachedCreditos();
+        asignaturas = loadCachedAsignaturas();
     }
 
-    const creditos = extractCreditosFromDom();
-    const asignaturas = extractAsignaturasFromDom();
+    // If no cached or DOM data exists, display helper instructions
+    if (!creditos || creditos.length === 0 || !asignaturas || Object.keys(asignaturas).length === 0) {
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b> para cargar tus datos por primera vez.</p>";
+        return;
+    }
 
     // Fetch graduation threshold (TOTAL component row in credit table)
     const totalData = creditos.find(c => c.componente?.toUpperCase() === "TOTAL");
