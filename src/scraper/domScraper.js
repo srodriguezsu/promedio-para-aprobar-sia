@@ -223,106 +223,130 @@ export function areGradeContainersAvailable() {
 }
 
 /**
- * Scrapes all subjects/courses available for enrollment in the current DOM view
- * and prints their name text content to the developer console.
- * 
- * @returns {Array.<string>} An array of the scraped subject names.
+ * Scrapes all details and academic groups of the subject currently displayed in the enrollment view.
+ * Extracts metadata like typology, credits, faculty, career/program, and details for each class group 
+ * (including professor name, schedule, duration, shift, and seat availability).
+ *
+ * @returns {{
+ *   name: string,
+ *   tipologia?: string,
+ *   creditos?: string,
+ *   facultad?: string,
+ *   carrera?: string,
+ *   groups: Array.<{
+ *     name: string,
+ *     profesor?: string,
+ *     horarios?: Array.<{
+ *       dia: string,
+ *       horaInicio: string,
+ *       horaFin: string,
+ *       aula: string
+ *     }>,
+ *     duracion?: string,
+ *     jornada?: string,
+ *     cuposDisponibles?: string
+ *   }>
+ * }|null} Object containing parsed course details and its groups, or null if not found.
  */
 export function extractAsignaturaParaCursar() {
-    const subjectName = document.querySelector(SELECTORS.subjectNameToEnroll);
-
-    const subject = {
-        name: subjectName.textContent.trim(),
+    const subjectTitleElement = document.querySelector(SELECTORS.subjectNameToEnroll);
+    if (!subjectTitleElement) {
+        console.warn("[SIA Pro] No se pudo encontrar el título de la asignatura para inscripción.");
+        return null;
     }
 
-    const subjectDetails = document.querySelectorAll(SELECTORS.subjectDetailsToEnrroll);
+    const scrapedSubject = {
+        name: subjectTitleElement.textContent.trim(),
+    };
 
-    subjectDetails.forEach((detail, index) => {
-        const text = detail.textContent.trim()
+    const detailElements = document.querySelectorAll(SELECTORS.subjectDetailsToEnroll);
+
+    // Parse main subject metadata fields (typology, credits, faculty, career)
+    detailElements.forEach((detailElement) => {
+        const detailText = detailElement.textContent.trim();
         
-        if (text.includes("Tipología")) {
-            subject.tipologia = text.replace("Tipología:", "").trim();
-        }
-        if (text.includes("Créditos")) {
-            subject.creditos = text.replace("Créditos:", "").trim();
-        }
-        if (text.includes("Facultad")) {
-            subject.facultad = text.replace("Facultad:", "").trim();
-        }
-        else {
-            subject.carrera = text;
+        if (detailText.includes("Tipología")) {
+            scrapedSubject.tipologia = detailText.replace("Tipología:", "").trim();
+        } else if (detailText.includes("Créditos")) {
+            scrapedSubject.creditos = detailText.replace("Créditos:", "").trim();
+        } else if (detailText.includes("Facultad")) {
+            scrapedSubject.facultad = detailText.replace("Facultad:", "").trim();
+        } else {
+            // Assume any other unclassified text block is the career/program name
+            scrapedSubject.carrera = detailText;
         }
     });
 
-    
-    const subjectGroups = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
-
+    const groupElements = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
     const groups = [];
 
-    subjectGroups.forEach((groupHtmlItem, index) => {
+    // Parse each class group section
+    groupElements.forEach((groupElement) => {
+        const groupNameText = groupElement.querySelector("h2")?.textContent.trim();
 
-        const groupName = groupHtmlItem.querySelector("h2")?.textContent.trim();
-
-        if (!groupName) {
+        if (!groupNameText) {
             return;
         }
 
-        let group = {
-            name: groupName
-        }
+        const scrapedGroup = {
+            name: groupNameText
+        };
 
-        const groupDetails = groupHtmlItem.querySelectorAll(SELECTORS.subjectGroupDetails);
+        const groupDetailElements = groupElement.querySelectorAll(SELECTORS.subjectGroupDetails);
 
-        groupDetails.forEach((detail, detailIndex) => {
+        // Parse attributes for the active group
+        groupDetailElements.forEach((groupDetailElement) => {
+            const groupDetailText = groupDetailElement.textContent.trim();
 
-            const text = detail.textContent.trim()
+            if (groupDetailText.includes("Profesor")) {
+                scrapedGroup.profesor = groupDetailText.replace("Profesor:", "").trim();
+            } else if (groupDetailText.includes("Horarios/Aula")) {
+                const scrapedSchedules = [];
+                
+                // Select only direct schedule rows within the group details
+                const scheduleElements = groupDetailElement.querySelectorAll(`:scope > span > ${SELECTORS.subjectGroupSchedule}`);
+                
+                scheduleElements.forEach((scheduleElement, scheduleIndex) => {
+                    const scheduleText = scheduleElement.textContent.trim();
+                    const scheduleRegex = /^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+de\s+(\d{1,2}:\d{2})\s+a\s+(\d{1,2}:\d{2})\.?(.*)$/i;
+                    const scheduleMatch = scheduleText.match(scheduleRegex);
 
-
-            if (text.includes("Profesor")) {
-                group.profesor = text.replace("Profesor:", "").trim();
-            } if (text.includes("Horarios/Aula")) {
-
-                const horarios = [];
-                detail.querySelectorAll(`:scope > span > ${SELECTORS.subjectGroupSchedule}`).forEach((schedule, scheduleIndex) => {
-                    const rawSchedule = schedule.textContent.trim();
-                    const regex = /^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+de\s+(\d{1,2}:\d{2})\s+a\s+(\d{1,2}:\d{2})\.?(.*)$/i;
-                    const match = rawSchedule.match(regex);
-
-                    const horario = {
+                    const scrapedSchedule = {
                         dia: "",
                         horaInicio: "",
                         horaFin: "",
                         aula: ""
                     };
 
-                    if (match) {
-                        horario.dia = match[1].trim();
-                        horario.horaInicio = match[2].trim();
-                        horario.horaFin = match[3].trim();
-                        horario.aula = match[4].trim();
+                    if (scheduleMatch) {
+                        scrapedSchedule.dia = scheduleMatch[1].trim();
+                        scrapedSchedule.horaInicio = scheduleMatch[2].trim();
+                        scrapedSchedule.horaFin = scheduleMatch[3].trim();
+                        scrapedSchedule.aula = scheduleMatch[4].trim();
                     } else {
-                        horario.aula = rawSchedule;
+                        // Fallback: assign the raw string to the classroom field if structure differs
+                        scrapedSchedule.aula = scheduleText;
                     }
                     
-                    horarios.push(horario);
+                    scrapedSchedules.push(scrapedSchedule);
                 });
-                group.horarios = horarios;
-            } if (text.includes("Duración")) {
-                group.duracion = text.replace("Duración:", "").trim();
-            } if (text.includes("Jornada")) {
-                group.jornada = text.replace("Jornada:", "").trim();
-            } if (text.includes("Cupos disponibles")) {
-                group.cuposDisponibles = text.replace("Cupos disponibles:", "").trim();
+                scrapedGroup.horarios = scrapedSchedules;
+            } else if (groupDetailText.includes("Duración")) {
+                scrapedGroup.duracion = groupDetailText.replace("Duración:", "").trim();
+            } else if (groupDetailText.includes("Jornada")) {
+                scrapedGroup.jornada = groupDetailText.replace("Jornada:", "").trim();
+            } else if (groupDetailText.includes("Cupos disponibles")) {
+                scrapedGroup.cuposDisponibles = groupDetailText.replace("Cupos disponibles:", "").trim();
             }
-            
         });
-        groups.push(group);
 
+        groups.push(scrapedGroup);
     });
 
-    subject.groups = groups;
+    scrapedSubject.groups = groups;
 
-    console.log(subject);
+    // Log the fully parsed subject summary tree for development analysis
+    console.log("[SIA Pro] Asignatura de inscripción procesada:", scrapedSubject);
 
-    return groups;
+    return scrapedSubject;
 }
