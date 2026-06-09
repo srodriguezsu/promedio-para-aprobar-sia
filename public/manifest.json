@@ -18,7 +18,8 @@
         "css/asignaturas.css",
         "css/creditos.css",
         "css/avance.css",
-        "css/horario.css"
+        "css/horario.css",
+        "css/export.css"
       ]
     }
   ],

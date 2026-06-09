@@ -3,6 +3,7 @@ import { renderHistoriaAcademica } from "../ui/historia_academica/asignaturasUI.
 import { renderCreditosProgress } from "../ui/historia_academica/creditosUI.js";
 import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
 import { renderHorario } from "../ui/horarioUI.js";
+import { renderExportTab } from "../ui/exportUI.js";
 import { injectAddSubjectButton } from "../ui/originalUiInjector.js";
 import {
     areGradeContainersAvailable,
@@ -48,6 +49,7 @@ function mountApp() {
                     <button class="sia-tab" data-tab="avance">Avance</button>
                     <button class="sia-tab" data-tab="creditos">Créditos</button>
                     <button class="sia-tab" data-tab="horario">Horario</button>
+                    <button class="sia-tab" data-tab="export">Exportar</button>
                 </div>
     
                 <div class="sia-tab-content active" id="tab-gpa"></div>
@@ -55,6 +57,7 @@ function mountApp() {
                 <div class="sia-tab-content" id="tab-avance"></div>
                 <div class="sia-tab-content" id="tab-creditos"></div>
                 <div class="sia-tab-content" id="tab-horario"></div>
+                <div class="sia-tab-content" id="tab-export"></div>
             </div>
         </div>
     `;
@@ -98,6 +101,10 @@ function bindUIEvents() {
             // Render Horario & enrollment view
             const tab_horario = document.getElementById("tab-horario");
             renderHorario(tab_horario);
+
+            // Render Export tab
+            const tab_export = document.getElementById("tab-export");
+            renderExportTab(tab_export);
         }
     });
 
