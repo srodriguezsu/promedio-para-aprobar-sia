@@ -37,7 +37,7 @@ export function renderHorario(container) {
         emptyState.innerHTML = `
             <div class="empty-icon">📅</div>
             <h3>Tu horario está vacío</h3>
-            <p>Navega a <strong>Inscripción de Asignaturas</strong> en el SIA y haz clic en <strong>➕ Agregar al Horario</strong> para iniciar tu simulación.</p>
+            <p>Navega a <strong>Proceso de inscripción > Asignaturas disponibles para cursar</strong> y haz clic en <strong>➕ Agregar al Horario</strong> en las asignaturas que deseas tomar.</p>
         `;
         wrapper.appendChild(emptyState);
         container.appendChild(wrapper);
