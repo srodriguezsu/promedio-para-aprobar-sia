@@ -221,3 +221,54 @@ export function areGradeContainersAvailable() {
     const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
     return gradeContainers && gradeContainers.length > 0;
 }
+
+/**
+ * Scrapes all subjects/courses available for enrollment in the current DOM view
+ * and prints their name text content to the developer console.
+ * 
+ * @returns {Array.<string>} An array of the scraped subject names.
+ */
+export function extractAsignaturaParaCursar() {
+    const subjectName = document.querySelector(SELECTORS.subjectNameToEnroll);
+    
+    const subjectGroups = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
+
+    console.log("Asignatura para cursar:", subjectName ? subjectName.textContent.trim() : "N/A");
+
+    subjectGroups.forEach((group, index) => {
+
+        const groupName = group.querySelector("h2")?.textContent.trim();
+
+        console.log(`- ${groupName}`);
+
+        const groupDetails = group.querySelectorAll(SELECTORS.subjectGroupDetails);
+
+        groupDetails.forEach((detail, detailIndex) => {
+
+            const text = detail.textContent.trim()
+
+            if (text.includes("Profesor")) {
+                console.log(`    * Profesor: ${text.replace("Profesor:", "").trim()}`);
+            } if (text.includes("Facultad")) {
+                console.log(`    * Facultad: ${text.replace("Facultad:", "").trim()}`);
+            } if (text.includes("Horarios/Aula")) {
+
+                detail.querySelectorAll(SELECTORS.subjectGroupSchedule).forEach((schedule, scheduleIndex) => {
+                    console.log(`        - Horario ${scheduleIndex + 1}: ${schedule.textContent.trim()}`);
+                }
+
+            );
+            } if (text.includes("Duración")) {
+                console.log(`    * Duración: ${text.replace("Duración:", "").trim()}`);
+            } if (text.includes("Jornada")) {
+                console.log(`    * Jornada: ${text.replace("Jornada:", "").trim()}`);
+            } if (text.includes("Cupos disponibles")) {
+                console.log(`    * Cupos disponibles: ${text.replace("Cupos disponibles:", "").trim()}`);
+            }
+            
+        });
+
+    });
+
+    return subjectNames;
+}

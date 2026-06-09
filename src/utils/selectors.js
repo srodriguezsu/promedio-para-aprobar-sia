@@ -24,5 +24,13 @@ export const SELECTORS = {
     creditsRow: "#pt1\\:r1\\:0\\:t10\\:\\:db table.af_table_data-table tbody > tr.af_table_data-row",
     creditsComponentCell: "td.af_column_data-cell.text-left, td.af_column_banded-data-cell.text-left",
     creditsDataCells: "td.af_column_data-cell.text-center, td.af_column_banded-data-cell.text-center",
+
+    // Subject to enroll selector
+    subjectNameToEnroll: "span.ocu-titulo.af_panelGroupLayout",
+    subjectGroupsToEnroll: "span.borde.salto.af_panelGroupLayout",
+    subjectGroupDetails: "div.margin-t.af_panelGroupLayout > div > span.af_panelGroupLayout",
+
+    subjectGroupSchedule: "span.lista-elemento.sin-descripcion.af_panelGroupLayout",
+
 };
 

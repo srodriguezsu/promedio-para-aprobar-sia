@@ -2,6 +2,7 @@ import { renderGpa } from "../ui/gpaUI.js";
 import { renderHistoriaAcademica } from "../ui/historia_academica/asignaturasUI.js";
 import { renderCreditosProgress } from "../ui/historia_academica/creditosUI.js";
 import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
+import { renderHorario } from "../ui/horarioUI.js";
 import {
     areGradeContainersAvailable,
     areAsignaturasAvailable,
@@ -41,12 +42,14 @@ function mountApp() {
                     <button class="sia-tab" data-tab="historia">Historia</button>
                     <button class="sia-tab" data-tab="avance">Avance</button>
                     <button class="sia-tab" data-tab="creditos">Créditos</button>
+                    <button class="sia-tab" data-tab="horario">Horario</button>
                 </div>
     
                 <div class="sia-tab-content active" id="tab-gpa"></div>
                 <div class="sia-tab-content" id="tab-historia"></div>
                 <div class="sia-tab-content" id="tab-avance"></div>
                 <div class="sia-tab-content" id="tab-creditos"></div>
+                <div class="sia-tab-content" id="tab-horario"></div>
             </div>
         </div>
     `;
@@ -86,6 +89,10 @@ function bindUIEvents() {
             // Render academic progress projection charts/tables
             const tab_avance = document.getElementById("tab-avance");
             renderAvanceProgress(tab_avance);
+
+            // Render Horario & enrollment view
+            const tab_horario = document.getElementById("tab-horario");
+            renderHorario(tab_horario);
         }
     });
 

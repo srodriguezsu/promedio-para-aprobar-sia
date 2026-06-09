@@ -1,0 +1,105 @@
+/* Horario Tab styling */
+.sia-horario-wrapper {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.sia-horario-header {
+    color: #0f6d59;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(15, 109, 89, 0.1);
+    padding-bottom: 8px;
+}
+
+.sia-horario-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(15, 109, 89, 0.08) 0%, rgba(15, 109, 89, 0.03) 100%);
+    border-left: 5px solid #0f6d59;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.sia-horario-banner.empty {
+    background: linear-gradient(135deg, rgba(100, 116, 139, 0.08) 0%, rgba(100, 116, 139, 0.03) 100%);
+    border-left-color: #64748b;
+}
+
+.sia-horario-banner-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.sia-horario-banner-text h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.sia-horario-banner-text p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.sia-horario-list-title {
+    color: #1e293b;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 30px 0 15px 0;
+}
+
+.sia-horario-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.sia-horario-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.2s ease;
+}
+
+.sia-horario-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border-color: rgba(15, 109, 89, 0.2);
+}
+
+.sia-horario-card-icon {
+    font-size: 1.5rem;
+    background: rgba(15, 109, 89, 0.1);
+    color: #0f6d59;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sia-horario-card-name {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
