@@ -16,3 +16,70 @@
     color: #dc2626;
     font-weight: 600;
 }
+
+/* GPA Calculator styles */
+.gpa-calc-display {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.gpa-calc-display.failing {
+    color: #dc2626;
+}
+
+.gpa-calc-original-display {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 16px;
+    margin-top: 0;
+    display: none;
+}
+
+.gpa-calc-grades-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gpa-calc-grade-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #f8fafc;
+}
+
+.gpa-calc-grade-label {
+    flex: 1;
+    font-size: 14px;
+    color: #334155;
+}
+
+.gpa-calc-input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.gpa-calc-grade-input {
+    width: 60px;
+    padding: 4px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.gpa-calc-grade-input.failing {
+    color: #dc2626;
+}
+
+.gpa-calc-original-grade-val {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 4px;
+    display: none;
+}
+

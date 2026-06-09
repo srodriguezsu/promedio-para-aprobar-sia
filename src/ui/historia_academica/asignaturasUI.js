@@ -1,4 +1,4 @@
-import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../domain/historiaAcademica.js";
+import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../scraper/domScraper.js";
 
 function enableDragScroll(container) {
     let isDown = false;

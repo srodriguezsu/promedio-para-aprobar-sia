@@ -57,6 +57,12 @@ También incorpora un rediseño de la historia académica, presentando de manera
 4. Ejectua ```npx vite build```
 5. Carga la carpeta dist como extensión no empaquetada
 
+### Empaquetar
+
+```bash
+cd dist && zip -r ../sia-pro.zip . * && cd ..
+```
+
 ## Uso
 
 1. Navega a la página de calificaciones de UNAL

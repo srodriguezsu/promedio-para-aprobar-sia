@@ -1,17 +1,12 @@
+import { renderGpa } from "../ui/gpaUI.js";
+import { renderHistoriaAcademica } from "../ui/historia_academica/asignaturasUI.js";
+import { renderCreditosProgress } from "../ui/historia_academica/creditosUI.js";
+import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
 import {
     areGradeContainersAvailable,
-    renderGpa
-} from "../ui/gpaUI.js";
-
-import {
-    renderHistoriaAcademica
-} from "../ui/historia_academica/asignaturasUI.js";
-
-import {
-    renderCreditosProgress
-} from "../ui/historia_academica/creditosUI.js";
-import { areAsignaturasAvailable, areCreditosAvailable } from "../domain/historiaAcademica.js";
-import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
+    areAsignaturasAvailable,
+    areCreditosAvailable
+} from "../scraper/domScraper.js";
 
 let observer;
 

@@ -1,4 +1,4 @@
-import { areCreditosAvailable, extractCreditosFromDom } from "../../domain/historiaAcademica.js";
+import { areCreditosAvailable, extractCreditosFromDom } from "../../scraper/domScraper.js";
 
 export function renderCreditosProgress(container) {
     if (!container) return;

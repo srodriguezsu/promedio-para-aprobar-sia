@@ -1,36 +1,10 @@
 import { SELECTORS } from "../utils/selectors.js";
 import { calculateCurrentGPA, normalizeSubjectName } from "../domain/gpaCalculator.js";
-
-export function extractActivitiesFromDom() {
-    const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
-    const activities = [];
-
-    gradeContainers.forEach((container) => {
-        const descriptionSpan = container.querySelector(SELECTORS.description);
-        const description = descriptionSpan ? descriptionSpan.textContent.trim() : "N/A";
-
-        const percentageSpan = container.querySelector(SELECTORS.percentage);
-        const percentageText = percentageSpan ? percentageSpan.textContent.trim() : "";
-        const percentageValue = percentageSpan ? parseFloat(percentageText.replace("%", "")) : NaN;
-
-        const gradeSpan = container.querySelector(SELECTORS.grade);
-        const gradeValue = gradeSpan ? parseFloat(gradeSpan.textContent.trim()) : NaN;
-
-        activities.push({
-            description,
-            percentage: percentageValue / 100,
-            grade: gradeValue,
-            container
-        });
-    });
-
-    return activities;
-}
-
-export function extractSubjectName() {
-    const subjectNameElement = document.querySelector(SELECTORS.subjectName);
-    return subjectNameElement ? subjectNameElement.textContent : "N/A";
-}
+import {
+    extractActivitiesFromDom,
+    extractSubjectName,
+    areGradeContainersAvailable
+} from "../scraper/domScraper.js";
 
 export function clearRequiredGradeUi() {
     document.querySelectorAll(SELECTORS.requiredGradeUi).forEach((el) => el.remove());
@@ -99,11 +73,6 @@ export function bindRefreshButton(onRefresh) {
     }
 }
 
-export function areGradeContainersAvailable() {
-    const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
-    return gradeContainers && gradeContainers.length > 0;
-}
-
 export function renderGpa(container) {
     if (!container) return;
     container.innerHTML = "";
@@ -121,16 +90,16 @@ export function renderGpa(container) {
     container.appendChild(header);
 
     const gpaDisplay = document.createElement("p");
-    gpaDisplay.style.cssText = "font-size: 28px; font-weight: bold; margin-bottom: 4px;";
+    gpaDisplay.className = "gpa-calc-display";
     container.appendChild(gpaDisplay);
 
     const originalGpaDisplay = document.createElement("p");
-    originalGpaDisplay.style.cssText = "font-size: 14px; color: #64748b; margin-bottom: 16px; margin-top: 0; display: none;";
+    originalGpaDisplay.className = "gpa-calc-original-display";
     originalGpaDisplay.textContent = `${originalGPA.toFixed(2)}`;
     container.appendChild(originalGpaDisplay);
 
     const gradesContainer = document.createElement("div");
-    gradesContainer.style.cssText = "display: flex; flex-direction: column; gap: 8px;";
+    gradesContainer.className = "gpa-calc-grades-container";
 
     const updateDisplay = () => {
         const { currentGPA } = calculateCurrentGPA(activities);
@@ -155,11 +124,7 @@ export function renderGpa(container) {
             originalGpaDisplay.textContent = `${originalGPA.toFixed(2)}`;
         }
 
-        if (currentGPA < 2.96) {
-            gpaDisplay.style.color = "#dc2626";
-        } else {
-            gpaDisplay.style.color = "inherit";
-        }
+        gpaDisplay.classList.toggle("failing", currentGPA < 2.96);
     };
 
     activities.forEach((activity) => {
@@ -167,14 +132,14 @@ export function renderGpa(container) {
         const originalGrade = activity.originalGrade;
 
         const item = document.createElement("div");
-        item.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;";
+        item.className = "gpa-calc-grade-item";
 
         const label = document.createElement("span");
         label.textContent = `${activity.description} (${(activity.percentage * 100).toFixed(1)}%)`;
-        label.style.cssText = "flex: 1; font-size: 14px; color: #334155;";
+        label.className = "gpa-calc-grade-label";
 
         const inputContainer = document.createElement("div");
-        inputContainer.style.cssText = "display: flex; flex-direction: column; align-items: flex-end;";
+        inputContainer.className = "gpa-calc-input-container";
 
         const input = document.createElement("input");
         input.type = "number";
@@ -183,18 +148,14 @@ export function renderGpa(container) {
         input.step = "0.1";
         input.value = Number.isFinite(originalGrade) ? originalGrade : "";
         input.placeholder = "-";
-        input.style.cssText = "width: 60px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center;";
+        input.className = "gpa-calc-grade-input";
 
         const origGradeSpan = document.createElement("span");
         origGradeSpan.textContent = `${Number.isFinite(originalGrade) ? originalGrade : "-"}`;
-        origGradeSpan.style.cssText = "font-size: 11px; color: #94a3b8; margin-top: 4px; display: none;";
+        origGradeSpan.className = "gpa-calc-original-grade-val";
 
         const updateInputColor = () => {
-            if (Number.isFinite(activity.grade) && activity.grade < 2.96) {
-                input.style.color = "#dc2626";
-            } else {
-                input.style.color = "inherit";
-            }
+            input.classList.toggle("failing", Number.isFinite(activity.grade) && activity.grade < 2.96);
         };
         updateInputColor();
 

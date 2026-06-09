@@ -1,8 +1,14 @@
 import {
-    areAsignaturasAvailable,
-    areCreditosAvailable, buildProgressData, calcularPromedioPorSemestre,
-    extractAsignaturasFromDom, extractCreditosFromDom, proyectarSemestres
+    buildProgressData,
+    calcularPromedioPorSemestre,
+    proyectarSemestres
 } from "../../domain/historiaAcademica.js";
+import {
+    areAsignaturasAvailable,
+    areCreditosAvailable,
+    extractAsignaturasFromDom,
+    extractCreditosFromDom
+} from "../../scraper/domScraper.js";
 
 
 
