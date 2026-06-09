@@ -26,7 +26,8 @@ export const SELECTORS = {
     creditsDataCells: "td.af_column_data-cell.text-center, td.af_column_banded-data-cell.text-center",
 
     // Subject to enroll selector
-    subjectNameToEnroll: "span.ocu-titulo.af_panelGroupLayout",
+    subjectNameToEnroll: "span.ocu-titulo.af_panelGroupLayout > h2",
+    subjectDetailsToEnrroll: "span.row.detass-tipologia.af_panelGroupLayout",
     subjectGroupsToEnroll: "span.borde.salto.af_panelGroupLayout",
     subjectGroupDetails: "div.margin-t.af_panelGroupLayout > div > span.af_panelGroupLayout",
 

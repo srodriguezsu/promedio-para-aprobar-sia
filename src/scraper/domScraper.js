@@ -230,45 +230,104 @@ export function areGradeContainersAvailable() {
  */
 export function extractAsignaturaParaCursar() {
     const subjectName = document.querySelector(SELECTORS.subjectNameToEnroll);
+
+    const subject = {
+        name: subjectName.textContent.trim(),
+    }
+
+    const subjectDetails = document.querySelectorAll(SELECTORS.subjectDetailsToEnrroll);
+
+    console.log("Detalles de la asignatura:");
+    subjectDetails.forEach((detail, index) => {
+        const text = detail.textContent.trim()
+
+        console.log(text);
+        
+        // if (text.includes("Código")) {
+        //     subject.codigo = text.replace("Código:", "").trim();
+        // }
+        // if (text.includes("Facultad")) {
+        //     subject.facultad = text.replace("Facultad:", "").trim();
+        // }
+        // if (text.includes("Créditos")) {
+        //     subject.creditos = text.replace("Créditos:", "").trim();
+        // }
+        // if (text.includes("Requisitos")) {
+        //     subject.requisitos = text.replace("Requisitos:", "").trim();
+        // }
+    });
+
     
     const subjectGroups = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
 
-    console.log("Asignatura para cursar:", subjectName ? subjectName.textContent.trim() : "N/A");
+    const groups = [];
 
-    subjectGroups.forEach((group, index) => {
+    subjectGroups.forEach((groupHtmlItem, index) => {
 
-        const groupName = group.querySelector("h2")?.textContent.trim();
+        const groupName = groupHtmlItem.querySelector("h2")?.textContent.trim();
 
-        console.log(`- ${groupName}`);
+        if (!groupName) {
+            return;
+        }
 
-        const groupDetails = group.querySelectorAll(SELECTORS.subjectGroupDetails);
+        let group = {
+            name: groupName
+        }
+
+        const groupDetails = groupHtmlItem.querySelectorAll(SELECTORS.subjectGroupDetails);
 
         groupDetails.forEach((detail, detailIndex) => {
 
             const text = detail.textContent.trim()
 
+
             if (text.includes("Profesor")) {
-                console.log(`    * Profesor: ${text.replace("Profesor:", "").trim()}`);
+                group.profesor = text.replace("Profesor:", "").trim();
             } if (text.includes("Facultad")) {
-                console.log(`    * Facultad: ${text.replace("Facultad:", "").trim()}`);
+                group.facultad = text.replace("Facultad:", "").trim();
             } if (text.includes("Horarios/Aula")) {
 
-                detail.querySelectorAll(SELECTORS.subjectGroupSchedule).forEach((schedule, scheduleIndex) => {
-                    console.log(`        - Horario ${scheduleIndex + 1}: ${schedule.textContent.trim()}`);
-                }
+                const horarios = [];
+                detail.querySelectorAll(`:scope > span > ${SELECTORS.subjectGroupSchedule}`).forEach((schedule, scheduleIndex) => {
+                    const rawSchedule = schedule.textContent.trim();
+                    const regex = /^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+de\s+(\d{1,2}:\d{2})\s+a\s+(\d{1,2}:\d{2})\.?(.*)$/i;
+                    const match = rawSchedule.match(regex);
 
-            );
+                    const horario = {
+                        dia: "",
+                        horaInicio: "",
+                        horaFin: "",
+                        aula: ""
+                    };
+
+                    if (match) {
+                        horario.dia = match[1].trim();
+                        horario.horaInicio = match[2].trim();
+                        horario.horaFin = match[3].trim();
+                        horario.aula = match[4].trim();
+                    } else {
+                        horario.aula = rawSchedule;
+                    }
+                    
+                    horarios.push(horario);
+                });
+                group.horarios = horarios;
             } if (text.includes("Duración")) {
-                console.log(`    * Duración: ${text.replace("Duración:", "").trim()}`);
+                group.duracion = text.replace("Duración:", "").trim();
             } if (text.includes("Jornada")) {
-                console.log(`    * Jornada: ${text.replace("Jornada:", "").trim()}`);
+                group.jornada = text.replace("Jornada:", "").trim();
             } if (text.includes("Cupos disponibles")) {
-                console.log(`    * Cupos disponibles: ${text.replace("Cupos disponibles:", "").trim()}`);
+                group.cuposDisponibles = text.replace("Cupos disponibles:", "").trim();
             }
             
         });
+        groups.push(group);
 
     });
 
-    return subjectNames;
+    subject.groups = groups;
+
+    console.log(subject);
+
+    return groups;
 }
