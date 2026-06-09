@@ -1,4 +1,5 @@
 import { areCreditosAvailable, extractCreditosFromDom } from "../../scraper/domScraper.js";
+import { saveCachedCreditos, loadCachedCreditos } from "../../domain/historyManager.js";
 
 /**
  * Renders a visual breakdown of credit progress grouped by academic component/typology.
@@ -12,12 +13,22 @@ export function renderCreditosProgress(container) {
     if (!container) return;
     container.innerHTML = "";
     
-    // Check if credit details are available in the DOM
-    if (!areCreditosAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
+    let data = null;
+
+    // Try to scrape first if currently viewing the history page
+    if (areCreditosAvailable()) {
+        data = extractCreditosFromDom();
+        saveCachedCreditos(data);
+    } else {
+        // Fallback to loaded cache
+        data = loadCachedCreditos();
+    }
+
+    // If no data exists in DOM or cache, show loading helper
+    if (!data || data.length === 0) {
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b> para cargar tus datos por primera vez.</p>";
         return;
     }
-    const data = extractCreditosFromDom();
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-tipologias-wrapper";

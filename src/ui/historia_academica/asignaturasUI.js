@@ -1,4 +1,5 @@
 import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../scraper/domScraper.js";
+import { saveCachedAsignaturas, loadCachedAsignaturas } from "../../domain/historyManager.js";
 
 /**
  * Enables mouse drag-to-scroll functionality horizontally on a given container element.
@@ -52,13 +53,22 @@ export function renderHistoriaAcademica(container) {
     if (!container) return;
     container.innerHTML = "";
     
-    // Check if the history page content is accessible
-    if (!areAsignaturasAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
-        return;
+    let data = null;
+
+    // Try to scrape first if currently viewing the history page
+    if (areAsignaturasAvailable()) {
+        data = extractAsignaturasFromDom();
+        saveCachedAsignaturas(data);
+    } else {
+        // Fallback to loaded cache
+        data = loadCachedAsignaturas();
     }
 
-    const data = extractAsignaturasFromDom();
+    // If no data exists in DOM or cache, show loading helper
+    if (!data || Object.keys(data).length === 0) {
+        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b> para cargar tus datos por primera vez.</p>";
+        return;
+    }
 
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
