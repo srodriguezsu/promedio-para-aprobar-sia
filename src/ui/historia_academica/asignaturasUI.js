@@ -1,10 +1,18 @@
-import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../domain/historiaAcademica.js";
+import { areAsignaturasAvailable, extractAsignaturasFromDom } from "../../scraper/domScraper.js";
 
+/**
+ * Enables mouse drag-to-scroll functionality horizontally on a given container element.
+ * Useful for horizontal layouts like semester lists on desktop screens.
+ * 
+ * @param {HTMLElement} container - The DOM element to apply drag-to-scroll behavior.
+ * @returns {void}
+ */
 function enableDragScroll(container) {
     let isDown = false;
     let startX;
     let scrollLeft;
 
+    // Track when mouse button is pressed down within the container
     container.addEventListener("mousedown", (e) => {
         isDown = true;
         container.classList.add("dragging");
@@ -12,26 +20,39 @@ function enableDragScroll(container) {
         scrollLeft = container.scrollLeft;
     });
 
+    // Reset status when mouse cursor leaves container boundary
     container.addEventListener("mouseleave", () => {
         isDown = false;
     });
 
+    // Reset status when mouse button is released
     container.addEventListener("mouseup", () => {
         isDown = false;
     });
 
+    // Scroll the container horizontally depending on drag movement distance
     container.addEventListener("mousemove", (e) => {
         if (!isDown) return;
         e.preventDefault();
         const x = e.pageX - container.offsetLeft;
-        const walk = (x - startX) * 1.2; // speed multiplier
+        const walk = (x - startX) * 1.2; // Speed multiplier for smooth dragging
         container.scrollLeft = scrollLeft - walk;
     });
 }
 
+/**
+ * Renders the semester-grouped academic history overview inside the provided container.
+ * Sorts semesters descending (most recent first) and displays subjects/courses inside
+ * cards showing metadata like credits, component typology, and final grades.
+ * 
+ * @param {HTMLElement} container - The DOM container where the history UI will be rendered.
+ * @returns {void}
+ */
 export function renderHistoriaAcademica(container) {
     if (!container) return;
     container.innerHTML = "";
+    
+    // Check if the history page content is accessible
     if (!areAsignaturasAvailable()) {
         container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
@@ -42,6 +63,7 @@ export function renderHistoriaAcademica(container) {
     const wrapper = document.createElement("div");
     wrapper.className = "sia-semester-wrapper";
 
+    // Bind horizontal scrolling behaviour
     enableDragScroll(wrapper);
 
     const title = document.createElement("h2");
@@ -50,14 +72,14 @@ export function renderHistoriaAcademica(container) {
 
     container.appendChild(title);
 
-    // Ordenar semestres descendente (ej: 2025-2S > 2025-1S > 2024-2S)
+    // Sort semesters descending (e.g., 2025-2S > 2025-1S > 2024-2S)
     const sortedSemestres = Object.keys(data).sort().reverse();
 
     for (const semestre of sortedSemestres) {
         const semestreData = data[semestre];
         const materias = [...(semestreData.asignaturas || [])];
 
-        // Ordenar por calificación descendente (null al final)
+        // Sort subjects by grade descending, placing ungraded or pending ones (null) at the end
         materias.sort((a, b) => {
             if (a.calificacion == null) return 1;
             if (b.calificacion == null) return -1;
@@ -74,6 +96,7 @@ export function renderHistoriaAcademica(container) {
         const metrics = document.createElement("div");
         metrics.className = "sia-semester-metrics";
 
+        // Display failed credits separately if the student failed any courses this semester
         if (semestreData.creditosReprobados > 0) {
             metrics.innerHTML = `
                 <span>Total Créditos: ${semestreData.creditosReprobados + semestreData.creditosAprobados}</span>
@@ -86,16 +109,15 @@ export function renderHistoriaAcademica(container) {
             `;
         }
 
-
-
-
         column.appendChild(title);
         column.appendChild(metrics);
 
+        // Render cards for each course
         for (const asignatura of materias) {
             const card = document.createElement("div");
             card.className = "sia-asignatura-card";
 
+            // Normalize state classes to lowercase with hyphens for CSS styling
             const estadoClass = asignatura.estado
                 ?.toLowerCase()
                 .replace(/\s+/g, "-");
