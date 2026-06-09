@@ -116,3 +116,43 @@
     background-color: #b91c1c;
 }
 
+/* GPA Subject Selector Styling */
+.gpa-selector-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    max-width: 400px;
+}
+
+.gpa-select-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.gpa-subject-select {
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.gpa-subject-select:focus {
+    border-color: #0f6d59;
+    box-shadow: 0 0 0 3px rgba(15, 109, 89, 0.15);
+}
+
+.gpa-subject-select option {
+    padding: 8px;
+    font-size: 14px;
+}
+
+

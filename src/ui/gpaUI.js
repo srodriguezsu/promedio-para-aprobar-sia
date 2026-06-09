@@ -5,6 +5,12 @@ import {
     extractSubjectName,
     areGradeContainersAvailable
 } from "../scraper/domScraper.js";
+import {
+    saveGpaSimulationForSubject,
+    loadGpaSimulationForSubject,
+    saveGpaCachedSubject,
+    loadAllGpaCachedSubjects
+} from "../domain/historyManager.js";
 
 /**
  * Clears all injected required grade status elements from the DOM.
@@ -116,8 +122,8 @@ export function bindRefreshButton(onRefresh) {
 
 /**
  * Renders the interactive GPA simulator panel inside the modal tab.
- * Allows simulating prospective grades for remaining activities, showing real-time changes
- * in the final subject score relative to actual grades.
+ * Allows selecting cached subjects or automatically scraping the active subject,
+ * then delegates details rendering.
  * 
  * @param {HTMLElement} container - The container element to mount the simulator inside.
  * @returns {void}
@@ -125,16 +131,115 @@ export function bindRefreshButton(onRefresh) {
 export function renderGpa(container) {
     if (!container) return;
     container.innerHTML = "";
-    
-    // Check if the current page has course grades available
-    if (!areGradeContainersAvailable()) {
-        container.innerHTML = "<p>No hay datos disponibles.<br><br>Navega a <b>Información académica > Mis calificaciones</b> y selecciona una asignatura.</p>";
+
+    // 1. Scrape and cache the active subject from the DOM if we are on the grades page
+    if (areGradeContainersAvailable()) {
+        const domSubjectName = normalizeSubjectName(extractSubjectName());
+        if (domSubjectName && domSubjectName !== "N/A") {
+            const domActivities = extractActivitiesFromDom();
+            saveGpaCachedSubject(domSubjectName, domActivities);
+            localStorage.setItem("sia_pro_gpa_selected_subject", domSubjectName);
+        }
+    }
+
+    // 2. Load cached subjects
+    const cachedSubjects = loadAllGpaCachedSubjects();
+    const cachedSubjectNames = Object.keys(cachedSubjects);
+
+    // 3. Fallback if no subjects have been cached
+    if (cachedSubjectNames.length === 0) {
+        container.innerHTML = "<p>No hay datos disponibles.<br><br>Navega a <b>Información académica > Mis calificaciones</b> y selecciona una asignatura para comenzar.</p>";
         return;
     }
 
-    const activities = extractActivitiesFromDom();
-    const subjectName = normalizeSubjectName(extractSubjectName());
-    const { currentGPA: originalGPA } = calculateCurrentGPA(activities);
+    // 4. Determine currently selected subject
+    let selectedSubject = localStorage.getItem("sia_pro_gpa_selected_subject");
+    if (!selectedSubject || !cachedSubjects[selectedSubject]) {
+        selectedSubject = cachedSubjectNames[0];
+        localStorage.setItem("sia_pro_gpa_selected_subject", selectedSubject);
+    }
+
+    // 5. Create dropdown selector UI
+    const selectorContainer = document.createElement("div");
+    selectorContainer.className = "gpa-selector-container";
+
+    const label = document.createElement("label");
+    label.setAttribute("for", "gpa-subject-select");
+    label.className = "gpa-select-label";
+    label.textContent = "Seleccionar asignatura:";
+    selectorContainer.appendChild(label);
+
+    const select = document.createElement("select");
+    select.id = "gpa-subject-select";
+    select.className = "gpa-subject-select";
+
+    cachedSubjectNames.forEach((name) => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        if (name === selectedSubject) {
+            option.selected = true;
+        }
+        select.appendChild(option);
+    });
+    selectorContainer.appendChild(select);
+    container.appendChild(selectorContainer);
+
+    // 6. Create details container
+    const detailsContainer = document.createElement("div");
+    detailsContainer.id = "gpa-calc-details-container";
+    container.appendChild(detailsContainer);
+
+    // 7. Render details for the selected subject
+    renderGpaDetails(detailsContainer, selectedSubject, cachedSubjects[selectedSubject]);
+
+    // 8. Bind dropdown changes
+    select.addEventListener("change", (e) => {
+        const newSelected = e.target.value;
+        localStorage.setItem("sia_pro_gpa_selected_subject", newSelected);
+        renderGpaDetails(detailsContainer, newSelected, cachedSubjects[newSelected]);
+    });
+}
+
+/**
+ * Renders the GPA details list (calculated GPA, original grades comparison, simulated input rows)
+ * for a specific subject using cached or scraped data.
+ * 
+ * @param {HTMLElement} container - The container element to render details inside.
+ * @param {string} subjectName - The name of the subject.
+ * @param {Array.<Object>} originalActivities - The original grade activities array.
+ * @returns {void}
+ */
+export function renderGpaDetails(container, subjectName, originalActivities) {
+    if (!container || !subjectName || !originalActivities) return;
+    container.innerHTML = "";
+
+    // Clone/map the activities to prevent mutating the original cached objects in memory directly
+    const activities = originalActivities.map(a => ({
+        description: a.description,
+        percentage: a.percentage,
+        grade: a.grade,
+        originalGrade: a.grade
+    }));
+
+    // Load saved GPA simulations for this subject
+    const savedSimulations = loadGpaSimulationForSubject(subjectName);
+
+    // Apply saved simulations if present
+    activities.forEach((activity) => {
+        const savedGrade = savedSimulations[activity.description];
+        if (savedGrade !== undefined) {
+            activity.grade = savedGrade;
+        }
+    });
+
+    // Calculate baseline original GPA based on the original cached grades
+    const originalGPAActivities = activities.map(a => ({
+        grade: a.originalGrade,
+        percentage: a.percentage,
+        description: a.description
+    }));
+    const { currentGPA: originalGPA } = calculateCurrentGPA(originalGPAActivities);
 
     // Subject header
     const header = document.createElement("h2");
@@ -162,7 +267,7 @@ export function renderGpa(container) {
         const { currentGPA } = calculateCurrentGPA(activities);
         gpaDisplay.textContent = currentGPA.toFixed(2);
 
-        // Check if any of the grade inputs differ from original scrape data
+        // Check if any of the grade inputs differ from original cached data
         let anyChanged = false;
         activities.forEach(a => {
             const isOrigNaN = !Number.isFinite(a.originalGrade);
@@ -189,7 +294,6 @@ export function renderGpa(container) {
 
     // Render an input row for each course activity
     activities.forEach((activity) => {
-        activity.originalGrade = activity.grade;
         const originalGrade = activity.originalGrade;
 
         const item = document.createElement("div");
@@ -208,13 +312,28 @@ export function renderGpa(container) {
         input.min = "0";
         input.max = "5";
         input.step = "0.1";
-        input.value = Number.isFinite(originalGrade) ? originalGrade : "";
+        // Show the simulated grade if available, otherwise fallback to original
+        input.value = Number.isFinite(activity.grade) ? activity.grade : "";
         input.placeholder = "-";
         input.className = "gpa-calc-grade-input";
 
         const origGradeSpan = document.createElement("span");
         origGradeSpan.textContent = `${Number.isFinite(originalGrade) ? originalGrade : "-"}`;
         origGradeSpan.className = "gpa-calc-original-grade-val";
+
+        const isOrigNaN = !Number.isFinite(originalGrade);
+        const isCurrNaN = !Number.isFinite(activity.grade);
+        const isInitialChanged = isOrigNaN !== isCurrNaN || (!isOrigNaN && activity.grade !== originalGrade);
+        if (isInitialChanged) {
+            origGradeSpan.style.display = "block";
+            if (!isOrigNaN && !isCurrNaN) {
+                let delta = activity.grade - originalGrade;
+                const sign = delta > 0 ? "+" : "";
+                origGradeSpan.textContent = `${originalGrade} (${sign}${delta.toFixed(2)})`;
+            } else {
+                origGradeSpan.textContent = `${Number.isFinite(originalGrade) ? originalGrade : "-"}`;
+            }
+        }
 
         const updateInputColor = () => {
             input.classList.toggle("failing", Number.isFinite(activity.grade) && activity.grade < 2.96);
@@ -233,6 +352,15 @@ export function renderGpa(container) {
                 e.target.value = "0";
             }
             activity.grade = isNaN(val) ? NaN : val;
+
+            // Save the updated simulation to localStorage
+            const updatedSimulations = loadGpaSimulationForSubject(subjectName);
+            if (Number.isFinite(activity.grade)) {
+                updatedSimulations[activity.description] = activity.grade;
+            } else {
+                delete updatedSimulations[activity.description];
+            }
+            saveGpaSimulationForSubject(subjectName, updatedSimulations);
 
             const isOrigNaN = !Number.isFinite(originalGrade);
             const isCurrNaN = !Number.isFinite(activity.grade);
