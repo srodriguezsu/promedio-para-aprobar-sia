@@ -60,3 +60,102 @@ export function loadCachedCreditos() {
         return null;
     }
 }
+
+const STORAGE_KEY_GPA_SIMULATIONS = "sia_pro_gpa_simulations";
+
+/**
+ * Loads all GPA simulations from localStorage.
+ * 
+ * @returns {Object.<string, Object.<string, number>>} Dictionary of subject names to their respective activity-grade mappings.
+ */
+export function loadAllGpaSimulations() {
+    try {
+        const data = localStorage.getItem(STORAGE_KEY_GPA_SIMULATIONS);
+        return data ? JSON.parse(data) : {};
+    } catch (e) {
+        console.error("[SIA Pro] Error al cargar simulaciones GPA:", e);
+        return {};
+    }
+}
+
+/**
+ * Saves all GPA simulations to localStorage.
+ * 
+ * @param {Object.<string, Object.<string, number>>} simulations - The simulations dictionary to save.
+ * @returns {void}
+ */
+export function saveAllGpaSimulations(simulations) {
+    try {
+        localStorage.setItem(STORAGE_KEY_GPA_SIMULATIONS, JSON.stringify(simulations));
+    } catch (e) {
+        console.error("[SIA Pro] Error al guardar simulaciones GPA:", e);
+    }
+}
+
+/**
+ * Saves the simulated grades for a specific subject.
+ * 
+ * @param {string} subjectName - Name of the subject.
+ * @param {Object.<string, number>} activitySimulations - Object mapping activity description to simulated grade.
+ * @returns {void}
+ */
+export function saveGpaSimulationForSubject(subjectName, activitySimulations) {
+    if (!subjectName) return;
+    const simulations = loadAllGpaSimulations();
+    simulations[subjectName] = activitySimulations;
+    saveAllGpaSimulations(simulations);
+}
+
+/**
+ * Loads the simulated grades for a specific subject.
+ * 
+ * @param {string} subjectName - Name of the subject.
+ * @returns {Object.<string, number>} Object mapping activity description to simulated grade, or empty object if none.
+ */
+export function loadGpaSimulationForSubject(subjectName) {
+    if (!subjectName) return {};
+    const simulations = loadAllGpaSimulations();
+    return simulations[subjectName] || {};
+}
+
+const STORAGE_KEY_GPA_CACHED_SUBJECTS = "sia_pro_gpa_cached_subjects";
+
+/**
+ * Saves the scraped subject data (original activities and grades) to localStorage.
+ * Filters out DOM references to prevent circular serialization errors.
+ * 
+ * @param {string} subjectName - Name of the subject.
+ * @param {Array.<Object>} activities - Scraped activities array.
+ * @returns {void}
+ */
+export function saveGpaCachedSubject(subjectName, activities) {
+    if (!subjectName || !activities) return;
+    try {
+        const subjects = loadAllGpaCachedSubjects();
+        // Keep only descriptions, percentages, and grade values, ignoring DOM elements
+        subjects[subjectName] = activities.map(activity => ({
+            description: activity.description,
+            percentage: activity.percentage,
+            grade: activity.grade
+        }));
+        localStorage.setItem(STORAGE_KEY_GPA_CACHED_SUBJECTS, JSON.stringify(subjects));
+    } catch (e) {
+        console.error("[SIA Pro] Error al guardar asignatura GPA en caché:", e);
+    }
+}
+
+/**
+ * Loads all GPA cached subjects from localStorage.
+ * 
+ * @returns {Object.<string, Array.<{description: string, percentage: number, grade: number}>>} Dictionary of cached subject names.
+ */
+export function loadAllGpaCachedSubjects() {
+    try {
+        const data = localStorage.getItem(STORAGE_KEY_GPA_CACHED_SUBJECTS);
+        return data ? JSON.parse(data) : {};
+    } catch (e) {
+        console.error("[SIA Pro] Error al cargar asignaturas GPA de caché:", e);
+        return {};
+    }
+}
+
