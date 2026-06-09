@@ -8,8 +8,12 @@ import { injectAddSubjectButton } from "../ui/originalUiInjector.js";
 import {
     areGradeContainersAvailable,
     areAsignaturasAvailable,
-    areCreditosAvailable
+    areCreditosAvailable,
+    extractSubjectName,
+    extractActivitiesFromDom
 } from "../scraper/domScraper.js";
+import { saveGpaCachedSubject } from "../domain/historyManager.js";
+import { normalizeSubjectName } from "../domain/gpaCalculator.js";
 
 /** @type {MutationObserver} MutationObserver to detect DOM ready state for scraping */
 let observer;
@@ -156,6 +160,26 @@ function initWhenReady() {
         if (isExtensionMutation) return;
 
         injectAddSubjectButton();
+
+        // Automatically scrape and cache grade sheets when visited
+        if (areGradeContainersAvailable()) {
+            const subjectName = normalizeSubjectName(extractSubjectName());
+            if (subjectName && subjectName !== "N/A") {
+                const activities = extractActivitiesFromDom();
+                saveGpaCachedSubject(subjectName, activities);
+
+                // If the selected subject has changed, update selected subject
+                const prevSelected = localStorage.getItem("sia_pro_gpa_selected_subject");
+                if (prevSelected !== subjectName) {
+                    localStorage.setItem("sia_pro_gpa_selected_subject", subjectName);
+                    // Rerender GPA tab if currently active and opened
+                    const tab_gpa = document.getElementById("tab-gpa");
+                    if (tab_gpa && tab_gpa.classList.contains("active")) {
+                        renderGpa(tab_gpa);
+                    }
+                }
+            }
+        }
     });
 
     observer.observe(document.documentElement, {
