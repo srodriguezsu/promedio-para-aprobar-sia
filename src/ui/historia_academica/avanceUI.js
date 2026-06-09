@@ -17,26 +17,40 @@ import {
 import Chart from "chart.js/auto";
 
 /**
- * Renders a Chart.js line chart showing progress and projections
- * @param {HTMLElement} container - Container element for the chart
- * @param {Array} progressData - Historical progress data
- * @param {Array} proyeccion - Projected future data
- * @param {number} totalExigidos - Total credits required
+ * Renders a Chart.js line chart showing chronological credit progress and projections.
+ * Plugs two datasets (real progress and future projection) into a canvas element.
+ * 
+ * @param {HTMLElement} container - Container element where the canvas will be injected.
+ * @param {Array.<{
+ *   semestre: string,
+ *   acumulado: number,
+ *   creditosDelSemestre: number
+ * }>} progressData - Historical credit progress records.
+ * @param {Array.<{
+ *   semestre: string,
+ *   acumulado: number
+ * }>} proyeccion - Simulated future semesters projection.
+ * @param {number} totalExigidos - Total credits required for graduation.
+ * @returns {void}
  */
 function renderChart(container, progressData, proyeccion, totalExigidos) {
     const canvas = document.createElement("canvas");
     canvas.style.maxHeight = "400px";
     container.appendChild(canvas);
 
+    // Set horizontal axis labels combining past/current semesters and projection steps
     const labels = [
         ...progressData.map(p => p.semestre.replace(" Ordinaria", "")),
         ...proyeccion.map(p => p.semestre)
     ];
 
+    // Real progress dataset (e.g. [16, 36, 52, 68])
     const dataReal = progressData.map(p => p.acumulado);
+
+    // Projection dataset. Offset it with null values so it aligns seamlessly with the end of real data
     const dataProy = [
         ...Array(progressData.length - 1).fill(null),
-        progressData.at(-1).acumulado,
+        progressData.at(-1).acumulado, // Connect projection line directly to the last real data point
         ...proyeccion.map(p => p.acumulado)
     ];
 
@@ -62,7 +76,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                     data: dataProy,
                     borderColor: "#f3c231",
                     backgroundColor: "rgba(243,194,49,0.1)",
-                    borderDash: [5, 5],
+                    borderDash: [5, 5], // Dashed line to visually distinguish projections
                     borderWidth: 3,
                     tension: 0.3,
                     fill: true,
@@ -101,6 +115,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                         size: 13
                     },
                     callbacks: {
+                        // Display percentage and total credits in the tooltip on hover
                         label: function (context) {
                             let label = context.dataset.label || '';
                             if (label) {
@@ -162,19 +177,18 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
 }
 
 /**
- * Renders the academic progress view with statistics, chart, and detailed table
- * Shows historical progress and future projections based on average performance
- * @param {HTMLElement} container - Container element where the progress view will be rendered
+ * Renders the academic progress view with statistics, chart, and detailed table.
+ * Shows historical progress and future projections based on average performance.
+ * 
+ * @param {HTMLElement} container - Container element where the progress view will be rendered.
+ * @returns {void}
  */
 export function renderAvanceProgress(container) {
     if (!container) return;
     container.innerHTML = "";
 
-    if (!areAsignaturasAvailable()) {
-        container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
-        return;
-    }
-    if (!areCreditosAvailable()) {
+    // Confirm that required scraped information from SIA is available
+    if (!areAsignaturasAvailable() || !areCreditosAvailable()) {
         container.innerHTML = "<p>No hay historia académica disponible.<br><br>Navega a <b>Información académica > Historia académica</b>.</p>";
         return;
     }
@@ -182,7 +196,7 @@ export function renderAvanceProgress(container) {
     const creditos = extractCreditosFromDom();
     const asignaturas = extractAsignaturasFromDom();
 
-    // Obtener el total de créditos exigidos
+    // Fetch graduation threshold (TOTAL component row in credit table)
     const totalData = creditos.find(c => c.componente?.toUpperCase() === "TOTAL");
     if (!totalData) {
         container.innerHTML = "<p>No se encontró el total de créditos exigidos.</p>";
@@ -191,9 +205,10 @@ export function renderAvanceProgress(container) {
 
     const totalExigidos = totalData.exigidos;
 
-    // Construir datos de progreso
+    // Build historical progress dataset
     const progressData = buildProgressData(asignaturas);
 
+    // Append currently enrolled credits in active term as a placeholder data point
     progressData.push({
         acumulado: progressData.at(-1).acumulado + totalData.inscritos,
         semestre: "Actual",
@@ -205,30 +220,19 @@ export function renderAvanceProgress(container) {
         return;
     }
 
-    // Proyectar semestres faltantes
+    // Project semesters needed to reach graduation requirements
     const proyeccion = proyectarSemestres(progressData, totalExigidos);
 
-    // Calcular estadísticas
-    const creditosAprobados = progressData.at(-1).acumulado;
-    const creditosPendientes = totalExigidos - creditosAprobados;
-    const promedioPorSemestre = calcularPromedioPorSemestre(progressData);
-    const porcentajeCompletado = ((creditosAprobados / totalExigidos) * 100).toFixed(1);
-
-    // Crear wrapper principal
-    const wrapper = document.createElement("div");
-    wrapper.className = "sia-avance-wrapper";
-
-    // Título
+    // Create container elements
     const title = document.createElement("h2");
     title.textContent = "Proyección de Avance Académico";
     title.className = "sia-avance-header";
 
-
-    // Contenedor del gráfico
+    // Chart container
     const chartContainer = document.createElement("div");
     chartContainer.className = "sia-chart-container";
 
-    // Tabla detallada de progreso
+    // Detailed table container
     const tableContainer = document.createElement("div");
     tableContainer.className = "sia-progress-table-container";
 
@@ -251,7 +255,7 @@ export function renderAvanceProgress(container) {
         <tbody>
     `;
 
-    // Add real data rows
+    // Populate table with real historical records
     for (const item of progressData) {
         const porcentaje = ((item.acumulado / totalExigidos) * 100).toFixed(1);
         tableHTML += `
@@ -264,7 +268,7 @@ export function renderAvanceProgress(container) {
         `;
     }
 
-    // Add projection rows
+    // Populate table with simulated/projected rows
     for (let i = 0; i < proyeccion.length; i++) {
         const item = proyeccion[i];
         const creditosDelSemestre = i === 0
@@ -290,11 +294,11 @@ export function renderAvanceProgress(container) {
     tableContainer.appendChild(tableTitle);
     tableContainer.appendChild(table);
 
-    // Agregar elementos al container
+    // Append child components to main view container
     container.appendChild(title);
     container.appendChild(chartContainer);
     container.appendChild(tableContainer);
 
-    // Renderizar el gráfico
+    // Render visual line graph
     renderChart(chartContainer, progressData, proyeccion, totalExigidos);
 }

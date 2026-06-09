@@ -6,14 +6,29 @@ import {
     areGradeContainersAvailable
 } from "../scraper/domScraper.js";
 
+/**
+ * Clears all injected required grade status elements from the DOM.
+ * 
+ * @returns {void}
+ */
 export function clearRequiredGradeUi() {
     document.querySelectorAll(SELECTORS.requiredGradeUi).forEach((el) => el.remove());
 }
 
+/**
+ * Injects a label displaying the minimum grade needed to approve in the DOM container of each pending activity.
+ * Displays a skull symbol if the required grade exceeds the maximum possible score (5.0).
+ * 
+ * @param {Object} data - The required grade calculation details.
+ * @param {number} data.requiredGrade - The grade needed.
+ * @param {Array.<Object>} data.activities - List of activities to update in the UI.
+ * @returns {void}
+ */
 export function injectRequiredGradeUi(data) {
     if (!data || !data.activities) return;
 
     const { requiredGrade, activities } = data;
+    // GPA grading system in UNAL is 0.0 - 5.0. Above 5.0 is impossible.
     const isNotPossible = requiredGrade > 5;
 
     activities.forEach((activity) => {
@@ -23,6 +38,7 @@ export function injectRequiredGradeUi(data) {
         resultDiv.setAttribute("data-required-grade-ui", "true");
         resultDiv.classList.add("gpa-required-grade");
 
+        // Format grade display. Append skull emoji if the grade is mathematically impossible.
         const gradeDisplay = isNotPossible
             ? Number(requiredGrade).toFixed(1) + " 💀"
             : Number(requiredGrade).toFixed(1);
@@ -35,6 +51,13 @@ export function injectRequiredGradeUi(data) {
     });
 }
 
+/**
+ * Creates and injects a floating UI box in the bottom right corner showing the calculated GPA.
+ * 
+ * @param {number|string} gpaValue - The current calculated GPA score.
+ * @param {string} [title="Promedio calculado"] - Header title for the GPA box.
+ * @returns {void}
+ */
 export function injectGpaBox(gpaValue, title = "Promedio calculado") {
     if (gpaValue == null) return;
     if (document.querySelector(SELECTORS.gpaBox)) return;
@@ -52,6 +75,12 @@ export function injectGpaBox(gpaValue, title = "Promedio calculado") {
     document.body.appendChild(box);
 }
 
+/**
+ * Updates the GPA value displayed inside the floating GPA box.
+ * 
+ * @param {number} gpaValue - The new GPA value.
+ * @returns {void}
+ */
 export function updateGpaDisplay(gpaValue) {
     const gpaValueDiv = document.querySelector(SELECTORS.gpaValue);
     if (gpaValueDiv) {
@@ -59,6 +88,12 @@ export function updateGpaDisplay(gpaValue) {
     }
 }
 
+/**
+ * Updates the course name header inside the floating GPA box.
+ * 
+ * @param {string} subjectName - Name of the subject.
+ * @returns {void}
+ */
 export function updateSubjectName(subjectName) {
     const subjectNameDiv = document.querySelector(SELECTORS.gpaSubjectName);
     if (subjectNameDiv) {
@@ -66,6 +101,12 @@ export function updateSubjectName(subjectName) {
     }
 }
 
+/**
+ * Registers a callback function for when the recalculate/refresh button in the GPA box is clicked.
+ * 
+ * @param {function} onRefresh - Callback function to execute.
+ * @returns {void}
+ */
 export function bindRefreshButton(onRefresh) {
     const refreshBtn = document.querySelector(SELECTORS.refreshButton);
     if (refreshBtn) {
@@ -73,9 +114,19 @@ export function bindRefreshButton(onRefresh) {
     }
 }
 
+/**
+ * Renders the interactive GPA simulator panel inside the modal tab.
+ * Allows simulating prospective grades for remaining activities, showing real-time changes
+ * in the final subject score relative to actual grades.
+ * 
+ * @param {HTMLElement} container - The container element to mount the simulator inside.
+ * @returns {void}
+ */
 export function renderGpa(container) {
     if (!container) return;
     container.innerHTML = "";
+    
+    // Check if the current page has course grades available
     if (!areGradeContainersAvailable()) {
         container.innerHTML = "<p>No hay datos disponibles.<br><br>Navega a <b>Información académica > Mis calificaciones</b> y selecciona una asignatura.</p>";
         return;
@@ -85,14 +136,17 @@ export function renderGpa(container) {
     const subjectName = normalizeSubjectName(extractSubjectName());
     const { currentGPA: originalGPA } = calculateCurrentGPA(activities);
 
+    // Subject header
     const header = document.createElement("h2");
     header.textContent = subjectName;
     container.appendChild(header);
 
+    // Current calculated GPA display
     const gpaDisplay = document.createElement("p");
     gpaDisplay.className = "gpa-calc-display";
     container.appendChild(gpaDisplay);
 
+    // Baseline original GPA display (shows difference when modified)
     const originalGpaDisplay = document.createElement("p");
     originalGpaDisplay.className = "gpa-calc-original-display";
     originalGpaDisplay.textContent = `${originalGPA.toFixed(2)}`;
@@ -101,10 +155,14 @@ export function renderGpa(container) {
     const gradesContainer = document.createElement("div");
     gradesContainer.className = "gpa-calc-grades-container";
 
+    /**
+     * Recalculates GPA and updates display values based on simulated inputs.
+     */
     const updateDisplay = () => {
         const { currentGPA } = calculateCurrentGPA(activities);
         gpaDisplay.textContent = currentGPA.toFixed(2);
 
+        // Check if any of the grade inputs differ from original scrape data
         let anyChanged = false;
         activities.forEach(a => {
             const isOrigNaN = !Number.isFinite(a.originalGrade);
@@ -114,6 +172,7 @@ export function renderGpa(container) {
             }
         });
 
+        // Show/hide comparison string depending on change detection
         originalGpaDisplay.style.display = anyChanged ? "block" : "none";
 
         let delta = currentGPA - originalGPA;
@@ -124,9 +183,11 @@ export function renderGpa(container) {
             originalGpaDisplay.textContent = `${originalGPA.toFixed(2)}`;
         }
 
+        // Apply visual indicator class if GPA falls below the passing score of 2.96 (~3.0)
         gpaDisplay.classList.toggle("failing", currentGPA < 2.96);
     };
 
+    // Render an input row for each course activity
     activities.forEach((activity) => {
         activity.originalGrade = activity.grade;
         const originalGrade = activity.originalGrade;
@@ -134,6 +195,7 @@ export function renderGpa(container) {
         const item = document.createElement("div");
         item.className = "gpa-calc-grade-item";
 
+        // Display description and weight
         const label = document.createElement("span");
         label.textContent = `${activity.description} (${(activity.percentage * 100).toFixed(1)}%)`;
         label.className = "gpa-calc-grade-label";
@@ -159,8 +221,10 @@ export function renderGpa(container) {
         };
         updateInputColor();
 
+        // Register change listener on manual grade override
         input.addEventListener("input", (e) => {
             let val = parseFloat(e.target.value);
+            // Cap simulation inputs strictly within academic limits
             if (val > 5) {
                 val = 5;
                 e.target.value = "5";

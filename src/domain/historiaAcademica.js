@@ -1,20 +1,31 @@
 /**
- * Builds progress data from academic history, filtering and sorting regular semesters
- * @param {Object} asignaturasPorSemestre - Object with semesters as keys and course data as values
- * @returns {Array} Array of progress data with accumulated credits per semester
+ * Builds accumulated academic progress data per semester from academic history.
+ * Filters out non-regular semesters (only matches "Ordinaria") and sorts them chronologically.
+ * 
+ * @param {Object.<string, {
+ *   asignaturas: Array.<Object>,
+ *   creditosAprobados: number,
+ *   creditosReprobados: number
+ * }>} asignaturasPorSemestre - Object containing academic history grouped by semester key.
+ * @returns {Array.<{
+ *   semestre: string,
+ *   acumulado: number,
+ *   creditosDelSemestre: number
+ * }>} List of semesters with their respective and accumulated approved credits.
  */
 export function buildProgressData(asignaturasPorSemestre) {
     // Filter and sort semesters (only "Ordinaria" - regular semesters)
     const semestres = Object.keys(asignaturasPorSemestre)
         .filter(s => s.includes("Ordinaria"))
         .sort((a, b) => {
-            // Extract year and semester number for proper sorting
+            // Extract year and semester number for proper sorting (e.g., "2024-1S" -> ['2024', '1'])
             const matchA = a.match(/(\d{4})-(\d)S/);
             const matchB = b.match(/(\d{4})-(\d)S/);
 
             if (matchA && matchB) {
                 const yearDiff = parseInt(matchA[1]) - parseInt(matchB[1]);
                 if (yearDiff !== 0) return yearDiff;
+                // If years are identical, sort by semester number (1S vs 2S)
                 return parseInt(matchA[2]) - parseInt(matchB[2]);
             }
             return a.localeCompare(b);
@@ -22,6 +33,7 @@ export function buildProgressData(asignaturasPorSemestre) {
 
     let acumulado = 0;
 
+    // Map sorted semesters to progress objects with running accumulated credits
     return semestres.map(semestre => {
         const creditosAprobados = asignaturasPorSemestre[semestre].creditosAprobados || 0;
         acumulado += creditosAprobados;
@@ -35,15 +47,23 @@ export function buildProgressData(asignaturasPorSemestre) {
 }
 
 /**
- * Projects future semesters based on current average performance
- * @param {Array} progressData - Historical progress data
- * @param {number} totalExigidos - Total credits required for graduation
- * @returns {Array} Array of projected semester data
+ * Projects future semesters based on the student's historical average credit performance per semester.
+ * 
+ * @param {Array.<{
+ *   semestre: string,
+ *   acumulado: number,
+ *   creditosDelSemestre: number
+ * }>} progressData - Historical academic progress data.
+ * @param {number} totalExigidos - Total credit requirements for the academic program.
+ * @returns {Array.<{
+ *   semestre: string,
+ *   acumulado: number
+ * }>} Array of projected future semesters with expected accumulated credits.
  */
 export function proyectarSemestres(progressData, totalExigidos) {
     const promedio = calcularPromedioPorSemestre(progressData);
 
-    // If average is 0 or negative, can't project
+    // If average is 0 or negative, we cannot project future progress
     if (promedio <= 0) {
         return [];
     }
@@ -52,14 +72,16 @@ export function proyectarSemestres(progressData, totalExigidos) {
     let semestreIndex = 1;
     const proyeccion = [];
 
-    // Safety limit to avoid infinite loops
+    // Safety limit to avoid infinite loops if projection doesn't progress
     const MAX_SEMESTRES = 20;
 
+    // Simulate subsequent semesters until graduation requirements are satisfied
     while (ultimoAcumulado < totalExigidos && semestreIndex <= MAX_SEMESTRES) {
         ultimoAcumulado += promedio;
 
         proyeccion.push({
             semestre: `+ ${semestreIndex}`,
+            // Cap the projection to the total required credits
             acumulado: Math.min(Math.round(ultimoAcumulado), totalExigidos)
         });
 
@@ -70,12 +92,18 @@ export function proyectarSemestres(progressData, totalExigidos) {
 }
 
 /**
- * Calculates the average credits approved per semester
- * @param {Array} progressData - Historical progress data
- * @returns {number} Average credits per semester
+ * Calculates the average credits approved per semester based on historical progress.
+ * 
+ * @param {Array.<{
+ *   semestre: string,
+ *   acumulado: number,
+ *   creditosDelSemestre: number
+ * }>} progressData - Historical progress data.
+ * @returns {number} Average credits approved per semester.
  */
 export function calcularPromedioPorSemestre(progressData) {
     const totalSemestres = progressData.length;
+    // Get the most recent accumulated credits from the last element
     const totalCreditos = progressData.at(-1).acumulado;
 
     return totalCreditos / totalSemestres;
