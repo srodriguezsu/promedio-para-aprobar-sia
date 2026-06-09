@@ -13,9 +13,17 @@ export function injectAddSubjectButton() {
     const subjectTitleElement = document.querySelector(SELECTORS.subjectNameToEnroll);
     if (!subjectTitleElement) return;
 
-    // Check if the button is already injected
+    const groupElements = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
     const existingButton = document.getElementById("sia-pro-add-to-schedule-btn");
     const subjectName = subjectTitleElement.textContent.trim();
+
+    // Only allow injection if there is at least one group available to enroll
+    if (groupElements.length === 0) {
+        if (existingButton) {
+            existingButton.remove();
+        }
+        return;
+    }
 
     if (existingButton) {
         updateButtonState(subjectName);
