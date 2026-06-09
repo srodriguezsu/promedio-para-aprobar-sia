@@ -2,6 +2,8 @@ import { renderGpa } from "../ui/gpaUI.js";
 import { renderHistoriaAcademica } from "../ui/historia_academica/asignaturasUI.js";
 import { renderCreditosProgress } from "../ui/historia_academica/creditosUI.js";
 import { renderAvanceProgress } from "../ui/historia_academica/avanceUI.js";
+import { renderHorario } from "../ui/horarioUI.js";
+import { injectAddSubjectButton } from "../ui/originalUiInjector.js";
 import {
     areGradeContainersAvailable,
     areAsignaturasAvailable,
@@ -41,12 +43,14 @@ function mountApp() {
                     <button class="sia-tab" data-tab="historia">Historia</button>
                     <button class="sia-tab" data-tab="avance">Avance</button>
                     <button class="sia-tab" data-tab="creditos">Créditos</button>
+                    <button class="sia-tab" data-tab="horario">Horario</button>
                 </div>
     
                 <div class="sia-tab-content active" id="tab-gpa"></div>
                 <div class="sia-tab-content" id="tab-historia"></div>
                 <div class="sia-tab-content" id="tab-avance"></div>
                 <div class="sia-tab-content" id="tab-creditos"></div>
+                <div class="sia-tab-content" id="tab-horario"></div>
             </div>
         </div>
     `;
@@ -86,6 +90,10 @@ function bindUIEvents() {
             // Render academic progress projection charts/tables
             const tab_avance = document.getElementById("tab-avance");
             renderAvanceProgress(tab_avance);
+
+            // Render Horario & enrollment view
+            const tab_horario = document.getElementById("tab-horario");
+            renderHorario(tab_horario);
         }
     });
 
@@ -125,16 +133,22 @@ function initWhenReady() {
 
     mountApp();
 
-    // Observe changes to detect when SIA has populated the relevant pages
-    observer = new MutationObserver(() => {
-        if (
-            areGradeContainersAvailable() &&
-            areAsignaturasAvailable() &&
-            areCreditosAvailable()
-        ) {
-            // Once data is ready, we can stop observing
-            observer.disconnect();
-        }
+    // Observe changes to detect when SIA has populated the relevant pages and inject buttons
+    observer = new MutationObserver((mutations) => {
+        // Ignore mutations triggered by our own extension DOM nodes to prevent infinite loop crashes
+        const isExtensionMutation = mutations.every((mutation) => {
+            const target = mutation.target;
+            return (
+                target.id === "sia-pro-add-to-schedule-btn" ||
+                target.classList?.contains("sia-pro-injected-btn") ||
+                target.id === "sia-unal-root" ||
+                (target.closest && target.closest("#sia-unal-root"))
+            );
+        });
+
+        if (isExtensionMutation) return;
+
+        injectAddSubjectButton();
     });
 
     observer.observe(document.documentElement, {

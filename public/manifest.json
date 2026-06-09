@@ -17,7 +17,8 @@
         "css/required-grade.css",
         "css/asignaturas.css",
         "css/creditos.css",
-        "css/avance.css"
+        "css/avance.css",
+        "css/horario.css"
       ]
     }
   ],

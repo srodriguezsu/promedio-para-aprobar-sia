@@ -221,3 +221,132 @@ export function areGradeContainersAvailable() {
     const gradeContainers = document.querySelectorAll(SELECTORS.gradeContainers);
     return gradeContainers && gradeContainers.length > 0;
 }
+
+/**
+ * Scrapes all details and academic groups of the subject currently displayed in the enrollment view.
+ * Extracts metadata like typology, credits, faculty, career/program, and details for each class group 
+ * (including professor name, schedule, duration, shift, and seat availability).
+ *
+ * @returns {{
+ *   name: string,
+ *   tipologia?: string,
+ *   creditos?: string,
+ *   facultad?: string,
+ *   carrera?: string,
+ *   groups: Array.<{
+ *     name: string,
+ *     profesor?: string,
+ *     horarios?: Array.<{
+ *       dia: string,
+ *       horaInicio: string,
+ *       horaFin: string,
+ *       aula: string
+ *     }>,
+ *     duracion?: string,
+ *     jornada?: string,
+ *     cuposDisponibles?: string
+ *   }>
+ * }|null} Object containing parsed course details and its groups, or null if not found.
+ */
+export function extractAsignaturaParaCursar() {
+    const subjectTitleElement = document.querySelector(SELECTORS.subjectNameToEnroll);
+    if (!subjectTitleElement) {
+        console.warn("[SIA Pro] No se pudo encontrar el título de la asignatura para inscripción.");
+        return null;
+    }
+
+    const scrapedSubject = {
+        name: subjectTitleElement.textContent.trim(),
+    };
+
+    const detailElements = document.querySelectorAll(SELECTORS.subjectDetailsToEnroll);
+
+    // Parse main subject metadata fields (typology, credits, faculty, career)
+    detailElements.forEach((detailElement) => {
+        const detailText = detailElement.textContent.trim();
+        
+        if (detailText.includes("Tipología")) {
+            scrapedSubject.tipologia = detailText.replace("Tipología:", "").trim();
+        } else if (detailText.includes("Créditos")) {
+            scrapedSubject.creditos = detailText.replace("Créditos:", "").trim();
+        } else if (detailText.includes("Facultad")) {
+            scrapedSubject.facultad = detailText.replace("Facultad:", "").trim();
+        } else {
+            // Assume any other unclassified text block is the career/program name
+            scrapedSubject.carrera = detailText;
+        }
+    });
+
+    const groupElements = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
+    const groups = [];
+
+    // Parse each class group section
+    groupElements.forEach((groupElement) => {
+        const groupNameText = groupElement.querySelector("h2")?.textContent.trim();
+
+        if (!groupNameText) {
+            return;
+        }
+
+        const scrapedGroup = {
+            name: groupNameText
+        };
+
+        const groupDetailElements = groupElement.querySelectorAll(SELECTORS.subjectGroupDetails);
+
+        // Parse attributes for the active group
+        groupDetailElements.forEach((groupDetailElement) => {
+            const groupDetailText = groupDetailElement.textContent.trim();
+
+            if (groupDetailText.includes("Profesor")) {
+                scrapedGroup.profesor = groupDetailText.replace("Profesor:", "").trim();
+            } else if (groupDetailText.includes("Horarios/Aula")) {
+                const scrapedSchedules = [];
+                
+                // Select only direct schedule rows within the group details
+                const scheduleElements = groupDetailElement.querySelectorAll(`:scope > span > ${SELECTORS.subjectGroupSchedule}`);
+                
+                scheduleElements.forEach((scheduleElement, scheduleIndex) => {
+                    const scheduleText = scheduleElement.textContent.trim();
+                    const scheduleRegex = /^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+de\s+(\d{1,2}:\d{2})\s+a\s+(\d{1,2}:\d{2})\.?(.*)$/i;
+                    const scheduleMatch = scheduleText.match(scheduleRegex);
+
+                    const scrapedSchedule = {
+                        dia: "",
+                        horaInicio: "",
+                        horaFin: "",
+                        aula: ""
+                    };
+
+                    if (scheduleMatch) {
+                        scrapedSchedule.dia = scheduleMatch[1].trim();
+                        scrapedSchedule.horaInicio = scheduleMatch[2].trim();
+                        scrapedSchedule.horaFin = scheduleMatch[3].trim();
+                        scrapedSchedule.aula = scheduleMatch[4].trim();
+                    } else {
+                        // Fallback: assign the raw string to the classroom field if structure differs
+                        scrapedSchedule.aula = scheduleText;
+                    }
+                    
+                    scrapedSchedules.push(scrapedSchedule);
+                });
+                scrapedGroup.horarios = scrapedSchedules;
+            } else if (groupDetailText.includes("Duración")) {
+                scrapedGroup.duracion = groupDetailText.replace("Duración:", "").trim();
+            } else if (groupDetailText.includes("Jornada")) {
+                scrapedGroup.jornada = groupDetailText.replace("Jornada:", "").trim();
+            } else if (groupDetailText.includes("Cupos disponibles")) {
+                scrapedGroup.cuposDisponibles = groupDetailText.replace("Cupos disponibles:", "").trim();
+            }
+        });
+
+        groups.push(scrapedGroup);
+    });
+
+    scrapedSubject.groups = groups;
+
+    // Log the fully parsed subject summary tree for development analysis
+    console.log("[SIA Pro] Asignatura de inscripción procesada:", scrapedSubject);
+
+    return scrapedSubject;
+}

@@ -83,3 +83,36 @@
     display: none;
 }
 
+/* Injected button on the original SIA page */
+.sia-pro-injected-btn {
+    margin-left: 15px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: #0f6d59;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    vertical-align: middle;
+}
+
+.sia-pro-injected-btn:hover {
+    background-color: #0b5142;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+.sia-pro-injected-btn.enrolled {
+    background-color: #dc2626;
+}
+
+.sia-pro-injected-btn.enrolled:hover {
+    background-color: #b91c1c;
+}
+
