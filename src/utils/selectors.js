@@ -27,10 +27,10 @@ export const SELECTORS = {
 
     // Subject to enroll selector
     subjectNameToEnroll: "span.ocu-titulo.af_panelGroupLayout > h2",
-    subjectDetailsToEnrroll: "span.row.detass-tipologia.af_panelGroupLayout",
+    subjectDetailsToEnrroll: "div.af_panelGroupLayout > div > span.row.af_panelGroupLayout",
+
     subjectGroupsToEnroll: "span.borde.salto.af_panelGroupLayout",
     subjectGroupDetails: "div.margin-t.af_panelGroupLayout > div > span.af_panelGroupLayout",
-
     subjectGroupSchedule: "span.lista-elemento.sin-descripcion.af_panelGroupLayout",
 
 };

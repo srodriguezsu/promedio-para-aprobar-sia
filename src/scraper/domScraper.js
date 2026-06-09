@@ -240,21 +240,19 @@ export function extractAsignaturaParaCursar() {
     console.log("Detalles de la asignatura:");
     subjectDetails.forEach((detail, index) => {
         const text = detail.textContent.trim()
-
-        console.log(text);
         
-        // if (text.includes("Código")) {
-        //     subject.codigo = text.replace("Código:", "").trim();
-        // }
-        // if (text.includes("Facultad")) {
-        //     subject.facultad = text.replace("Facultad:", "").trim();
-        // }
-        // if (text.includes("Créditos")) {
-        //     subject.creditos = text.replace("Créditos:", "").trim();
-        // }
-        // if (text.includes("Requisitos")) {
-        //     subject.requisitos = text.replace("Requisitos:", "").trim();
-        // }
+        if (text.includes("Tipología")) {
+            subject.tipologia = text.replace("Tipología:", "").trim();
+        }
+        if (text.includes("Créditos")) {
+            subject.creditos = text.replace("Créditos:", "").trim();
+        }
+        if (text.includes("Facultad")) {
+            subject.facultad = text.replace("Facultad:", "").trim();
+        }
+        else {
+            subject.carrera = text;
+        }
     });
 
     
