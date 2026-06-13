@@ -236,8 +236,6 @@ export function areGradeContainersAvailable() {
  *   groups: Array.<{
  *     name: string,
  *     profesor?: string,
- *     fechaInicio?: string,  
- *     fechaFin?: string,
  *     horarios?: Array.<{
  *       dia: string,
  *       horaInicio: string,
