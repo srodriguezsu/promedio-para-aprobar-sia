@@ -301,6 +301,33 @@ export function extractAsignaturaParaCursar() {
             if (groupDetailText.includes("Profesor")) {
                 scrapedGroup.profesor = groupDetailText.replace("Profesor:", "").trim();
             } else if (groupDetailText.includes("Horarios/Aula")) {
+
+                // Extract start date and end date for the group
+                const dateElements = groupDetailElement.querySelectorAll("span");
+
+                // Second element is expected to contain the start date and the third element the end date
+                if (dateElements.length >= 3) {
+                    // Regex to search for a date part from strings like "30/05/2026" (ignoring ADF scripts/comments)
+                    const dateRegex = /(\d{2}\/\d{2}\/\d{4})/;
+                    const startDateMatch = dateElements[1].textContent.trim().match(dateRegex);
+                    const endDateMatch = dateElements[2].textContent.trim().match(dateRegex);
+
+                    if (startDateMatch) {
+                        scrapedGroup.fechaInicio = startDateMatch[1];
+                    } else {
+                        console.warn(`[SIA Pro] No se pudo extraer la fecha de inicio para el grupo ${scrapedGroup.name}.`, dateElements[1].textContent.trim());
+                    }
+
+                    if (endDateMatch) {
+                        scrapedGroup.fechaFin = endDateMatch[1];
+                    } else {
+                        console.warn(`[SIA Pro] No se pudo extraer la fecha de fin para el grupo ${scrapedGroup.name}.`);
+                    }
+                    
+                } else {
+                    console.warn(`[SIA Pro] No se encontraron las fechas de inicio y fin para el grupo ${scrapedGroup.name}.`);
+                }
+
                 const scrapedSchedules = [];
                 
                 // Select only direct schedule rows within the group details
@@ -308,6 +335,8 @@ export function extractAsignaturaParaCursar() {
                 
                 scheduleElements.forEach((scheduleElement, scheduleIndex) => {
                     const scheduleText = scheduleElement.textContent.trim();
+                    
+                    // Regex pattern to match schedule format like "Lunes de 8:00 a 10:00 Aula 101"
                     const scheduleRegex = /^([A-Za-zÁÉÍÓÚÑáéíóúñ]+)\s+de\s+(\d{1,2}:\d{2})\s+a\s+(\d{1,2}:\d{2})\.?(.*)$/i;
                     const scheduleMatch = scheduleText.match(scheduleRegex);
 
@@ -339,6 +368,11 @@ export function extractAsignaturaParaCursar() {
                 scrapedGroup.cuposDisponibles = groupDetailText.replace("Cupos disponibles:", "").trim();
             }
         });
+
+        if (!scrapedGroup.horarios || scrapedGroup.horarios.length === 0) {
+            console.warn(`[SIA Pro] No se encontraron horarios válidos para el grupo ${scrapedGroup.name}.`);
+            return;
+        }
 
         groups.push(scrapedGroup);
     });
