@@ -35,7 +35,22 @@ export function buildProgressData(asignaturasPorSemestre) {
 
     // Map sorted semesters to progress objects with running accumulated credits
     return semestres.map(semestre => {
-        const creditosAprobados = asignaturasPorSemestre[semestre].creditosAprobados || 0;
+        const semesterData = asignaturasPorSemestre[semestre];
+        let creditosAprobados = semesterData.creditosAprobados || 0;
+
+        if (semesterData.asignaturas) {
+            creditosAprobados = semesterData.asignaturas
+                .filter(asig => {
+                    const normComponente = (asig.componente || "")
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .toUpperCase()
+                        .trim();
+                    return asig.estado === "APROBADA" && normComponente !== "NIVELACION";
+                })
+                .reduce((sum, asig) => sum + (asig.creditos || 0), 0);
+        }
+
         acumulado += creditosAprobados;
 
         return {

@@ -101,6 +101,27 @@
     color: #b45309;
 }
 
+.sia-export-alert.success {
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+}
+
+.sia-export-btn.danger {
+    background-color: #e11d48;
+}
+
+.sia-export-btn.danger:hover {
+    background-color: #be123c;
+}
+
+.sia-export-btn.danger:disabled {
+    background-color: #e2e8f0;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+
 /* Data Dictionary */
 .sia-dict-section {
     background: #f8fafc;

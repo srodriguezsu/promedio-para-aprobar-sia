@@ -19,7 +19,7 @@ También incorpora un rediseño de la historia académica, presentando de manera
 - Asume que todas las actividades restantes reciben la misma calificación.
 - Identifica si es matemáticamente posible pasar (muestra un indicador visual con 💀 si es imposible).
 
-### 📅 Simulación de Horarios y Preinscripción
+### 📅 Horarios y Preinscripción
 - Agrega asignaturas al planeador directamente desde la interfaz de "Asignaturas disponibles para cursar" del SIA con un botón "➕ Agregar al Horario".
 - Selecciona diferentes grupos y profesores para cada materia preinscrita.
 - Visualiza la distribución semanal de clases en un calendario visual e interactivo.

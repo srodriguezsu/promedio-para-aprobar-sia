@@ -226,17 +226,29 @@ export function renderAvanceProgress(container) {
     // Build historical progress dataset
     const progressData = buildProgressData(asignaturas);
 
-    // Append currently enrolled credits in active term as a placeholder data point
-    progressData.push({
-        acumulado: progressData.at(-1).acumulado + totalData.inscritos,
-        semestre: "Actual",
-        creditosDelSemestre: totalData.inscritos
-    });
-
     if (progressData.length === 0) {
         container.innerHTML = "<p>No hay suficientes datos para generar la proyección.</p>";
         return;
     }
+
+    // Find if there are enrolled credits in leveling courses (Nivelación) to exclude them from the current semester
+    const nivelacionCreditos = creditos.find(c => {
+        const norm = (c.componente || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .toUpperCase()
+            .trim();
+        return norm === "NIVELACION";
+    });
+    const inscritosNivelacion = nivelacionCreditos ? (nivelacionCreditos.inscritos || 0) : 0;
+    const inscritosValidos = Math.max(0, totalData.inscritos - inscritosNivelacion);
+
+    // Append currently enrolled credits in active term as a placeholder data point
+    progressData.push({
+        acumulado: progressData.at(-1).acumulado + inscritosValidos,
+        semestre: "Actual",
+        creditosDelSemestre: inscritosValidos
+    });
 
     // Project semesters needed to reach graduation requirements
     const proyeccion = proyectarSemestres(progressData, totalExigidos);

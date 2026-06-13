@@ -25,11 +25,6 @@ export function renderHorario(container) {
     const wrapper = document.createElement("div");
     wrapper.className = "sia-horario-wrapper";
 
-    const title = document.createElement("h2");
-    title.textContent = "Horario & Simulación de Inscripción";
-    title.className = "sia-horario-header";
-    container.appendChild(title);
-
     if (subjects.length === 0) {
         // Render empty state if no subjects are added
         const emptyState = document.createElement("div");

@@ -1,12 +1,19 @@
 import {
     loadCachedAsignaturas,
     loadAllGpaCachedSubjects,
-    loadAllGpaSimulations
+    loadAllGpaSimulations,
+    clearAllExtensionData
 } from "../domain/historyManager.js";
 import {
     loadSelectedSubjects,
     loadSelectedGroups
 } from "../domain/scheduleManager.js";
+import { renderGpa } from "./gpaUI.js";
+import { renderHistoriaAcademica } from "./historia_academica/asignaturasUI.js";
+import { renderCreditosProgress } from "./historia_academica/creditosUI.js";
+import { renderAvanceProgress } from "./historia_academica/avanceUI.js";
+import { renderHorario } from "./horarioUI.js";
+
 
 /**
  * Converts headers and row arrays into a UTF-8 compatible CSV string with a BOM.
@@ -156,6 +163,28 @@ export function renderExportTab(container) {
                     </button>
                 </div>
             </div>
+
+            <!-- Limpiar Caché Card -->
+            <div class="sia-export-card">
+                <div>
+                    <div class="sia-export-card-title">🗑️ Limpiar Caché y Datos</div>
+                    <div class="sia-export-card-desc">
+                        Borra toda la información guardada localmente por la extensión (historial, notas parciales, simulaciones y horario seleccionado).
+                    </div>
+                </div>
+                <div>
+                    ${(historiaCount === 0 && gpaCount === 0 && scheduleCount === 0) ? `
+                        <div class="sia-export-alert success">
+                            <span>✓ El almacenamiento local de la extensión está limpio.</span>
+                        </div>
+                    ` : `
+                        <p style="font-size:12px;color:#b45309;font-weight:600;margin-bottom:12px;">⚠️ Hay datos guardados en caché local</p>
+                    `}
+                    <button id="btn-clear-cache" class="sia-export-btn danger" ${(historiaCount === 0 && gpaCount === 0 && scheduleCount === 0) ? "disabled" : ""}>
+                        Limpiar Datos Guardados
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Data Dictionary Section -->
@@ -275,6 +304,37 @@ export function renderExportTab(container) {
             });
             const csv = convertToCSV(headers, rows);
             downloadBlob(csv, "sia_pro_horario.csv", "text/csv;charset=utf-8;");
+        });
+    }
+
+    const btnClearCache = exportDiv.querySelector("#btn-clear-cache");
+    if (btnClearCache) {
+        btnClearCache.addEventListener("click", () => {
+            const confirmed = confirm("¿Estás seguro de que deseas borrar toda la caché y datos guardados de la extensión?\n\nEsto eliminará:\n- Tu historial académico raspado\n- El desglose de créditos y avance\n- Las notas parciales y simulaciones GPA\n- Las materias seleccionadas en tu horario\n\nEsta acción no se puede deshacer.");
+            if (confirmed) {
+                clearAllExtensionData();
+
+                // Re-render current tab
+                renderExportTab(container);
+
+                // Re-render other tabs if elements are in the DOM
+                const tab_historia = document.getElementById("tab-historia");
+                if (tab_historia) renderHistoriaAcademica(tab_historia);
+
+                const tab_creditos = document.getElementById("tab-creditos");
+                if (tab_creditos) renderCreditosProgress(tab_creditos);
+
+                const tab_gpa = document.getElementById("tab-gpa");
+                if (tab_gpa) renderGpa(tab_gpa);
+
+                const tab_avance = document.getElementById("tab-avance");
+                if (tab_avance) renderAvanceProgress(tab_avance);
+
+                const tab_horario = document.getElementById("tab-horario");
+                if (tab_horario) renderHorario(tab_horario);
+                
+                alert("Toda la caché y datos de la extensión han sido borrados correctamente.");
+            }
         });
     }
 

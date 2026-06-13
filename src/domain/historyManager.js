@@ -73,7 +73,7 @@ export function loadAllGpaSimulations() {
         const data = localStorage.getItem(STORAGE_KEY_GPA_SIMULATIONS);
         return data ? JSON.parse(data) : {};
     } catch (e) {
-        console.error("[SIA Pro] Error al cargar simulaciones GPA:", e);
+        console.error("[SIA Pro] Error al cargar simulaciones de promedio:", e);
         return {};
     }
 }
@@ -158,4 +158,29 @@ export function loadAllGpaCachedSubjects() {
         return {};
     }
 }
+
+/**
+ * Clears all cached academic, GPA, and schedule data from localStorage.
+ * 
+ * @returns {void}
+ */
+export function clearAllExtensionData() {
+    const keys = [
+        STORAGE_KEY_ASIGNATURAS,
+        STORAGE_KEY_CREDITOS,
+        STORAGE_KEY_GPA_SIMULATIONS,
+        STORAGE_KEY_GPA_CACHED_SUBJECTS,
+        "sia_pro_gpa_selected_subject",
+        "sia_pro_selected_subjects",
+        "sia_pro_selected_groups"
+    ];
+    keys.forEach(key => {
+        try {
+            localStorage.removeItem(key);
+        } catch (e) {
+            console.error(`[SIA Pro] Error al eliminar clave ${key} de localStorage:`, e);
+        }
+    });
+}
+
 
