@@ -61,12 +61,40 @@
 
 .sia-close-btn {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 40px;
+    right: 40px;
     border: none;
     background: transparent;
-    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    color: red;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    z-index: 10;
+}
+
+.sia-close-btn:hover {
+    background-color: #f1f5f9;
+    color: #0f6d59;
+    transform: scale(1.05);
+}
+
+.sia-close-btn:active {
+    transform: scale(0.95);
+}
+
+.sia-close-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
 }
 
 /* Tabs */

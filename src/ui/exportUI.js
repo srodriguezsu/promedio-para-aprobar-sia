@@ -358,7 +358,7 @@ export function renderExportTab(container) {
                 ["Actividad", "Descripción o nombre de la evaluación parcial.", "Texto", "Parcial 1"],
                 ["Porcentaje", "Porcentaje de peso que equivale la evaluación en la materia.", "Texto (Porcentaje)", "25.0%"],
                 ["Calificación Original", "La nota original extraída directamente del SIA.", "Numérico (Decimal)", "3.8"],
-                ["Calificación Simulada", "La nota simulada en el GPA Calculator, incluyendo tus modificaciones.", "Numérico (Decimal)", "4.5"]
+                ["Calificación Simulada", "La nota modificada en la calculadora de promedio.", "Numérico (Decimal)", "4.5"]
             ]
         },
         horario: {

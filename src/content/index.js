@@ -43,6 +43,12 @@ function mountApp() {
 
         <div id="sia-modal" class="sia-modal">
             <div class="sia-modal-content">
+                <button id="sia-close-btn" class="sia-close-btn" aria-label="Cerrar modal">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
                 <div class="sia-tabs">
                     <button class="sia-tab active" data-tab="gpa">Calculadora Promedio</button>
                     <button class="sia-tab" data-tab="historia">Historia</button>
@@ -105,6 +111,29 @@ function bindUIEvents() {
             // Render Export tab
             const tab_export = document.getElementById("tab-export");
             renderExportTab(tab_export);
+        }
+    });
+
+    // Close modal on close button click
+    const closeBtn = document.getElementById("sia-close-btn");
+    if (closeBtn) {
+        closeBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            modal.classList.remove("active");
+        });
+    }
+
+    // Close modal when clicking outside the modal content (backdrop)
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
+
+    // Close modal on Escape key press
+    window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("active")) {
+            modal.classList.remove("active");
         }
     });
 
