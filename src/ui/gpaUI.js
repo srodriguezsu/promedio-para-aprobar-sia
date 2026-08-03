@@ -326,10 +326,12 @@ export function renderGpaDetails(container, subjectName, originalActivities) {
         const isInitialChanged = isOrigNaN !== isCurrNaN || (!isOrigNaN && activity.grade !== originalGrade);
         if (isInitialChanged) {
             origGradeSpan.style.display = "block";
-            if (!isOrigNaN && !isCurrNaN) {
-                let delta = activity.grade - originalGrade;
+            if (!isCurrNaN) {
+                const origVal = isOrigNaN ? 0 : originalGrade;
+                const delta = activity.grade - origVal;
                 const sign = delta > 0 ? "+" : "";
-                origGradeSpan.textContent = `${originalGrade} (${sign}${delta.toFixed(2)})`;
+                const origDisplay = isOrigNaN ? "-" : originalGrade;
+                origGradeSpan.textContent = `${origDisplay} (${sign}${delta.toFixed(2)})`;
             } else {
                 origGradeSpan.textContent = `${Number.isFinite(originalGrade) ? originalGrade : "-"}`;
             }
@@ -368,10 +370,12 @@ export function renderGpaDetails(container, subjectName, originalActivities) {
 
             origGradeSpan.style.display = isChanged ? "block" : "none";
 
-            if (isChanged && !isOrigNaN && !isCurrNaN) {
-                let delta = activity.grade - originalGrade;
+            if (isChanged && !isCurrNaN) {
+                const origVal = isOrigNaN ? 0 : originalGrade;
+                const delta = activity.grade - origVal;
                 const sign = delta > 0 ? "+" : "";
-                origGradeSpan.textContent = `${originalGrade} (${sign}${delta.toFixed(2)})`;
+                const origDisplay = isOrigNaN ? "-" : originalGrade;
+                origGradeSpan.textContent = `${origDisplay} (${sign}${delta.toFixed(2)})`;
             } else {
                 origGradeSpan.textContent = `${Number.isFinite(originalGrade) ? originalGrade : "-"}`;
             }
