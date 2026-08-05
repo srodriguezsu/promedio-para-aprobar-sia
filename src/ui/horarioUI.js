@@ -51,6 +51,67 @@ export function renderHorario(container) {
     panelTitle.className = "sia-horario-panel-title";
     configPanel.appendChild(panelTitle);
 
+    // Calculate credit metrics (only for subjects with a group selected)
+    let totalCredits = 0;
+    let totalSubjectsWithGroup = 0;
+    const creditsByTipologia = {};
+
+    subjects.forEach((subject) => {
+        const selectedGroupVal = selections[subject.name];
+        if (selectedGroupVal) {
+            const credits = parseInt(subject.creditos, 10) || 0;
+            totalCredits += credits;
+            totalSubjectsWithGroup++;
+            
+            const tipo = subject.tipologia || "No especificada";
+            creditsByTipologia[tipo] = (creditsByTipologia[tipo] || 0) + credits;
+        }
+    });
+
+    const creditsSummary = document.createElement("div");
+    creditsSummary.className = "sia-horario-credits-summary";
+
+    let tipologiaHtml = "";
+    const tipos = Object.keys(creditsByTipologia);
+    if (tipos.length > 0) {
+        tipologiaHtml = `
+            <div class="credits-by-tipo">
+                <h5>Créditos por Tipología</h5>
+                <ul>
+                    ${tipos.map(tipo => `
+                        <li>
+                            <span class="tipo-name">${tipo.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</span>
+                            <span class="tipo-value">${creditsByTipologia[tipo]} cr</span>
+                        </li>
+                    `).join("")}
+                </ul>
+            </div>
+        `;
+    } else {
+        tipologiaHtml = `
+            <div class="credits-empty-msg">
+                Selecciona un grupo para calcular los créditos.
+            </div>
+        `;
+    }
+
+    creditsSummary.innerHTML = `
+        <div class="credits-summary-header">
+            <div class="credits-main-metric">
+                <span class="credits-total-num">${totalCredits}</span>
+                <span class="credits-total-label">Créditos Seleccionados</span>
+            </div>
+            <div class="credits-sub-metrics">
+                <div class="sub-metric">
+                    <span class="metric-val">${totalSubjectsWithGroup}</span>
+                    <span class="metric-lbl">Asignaturas</span>
+                </div>
+            </div>
+        </div>
+        ${tipologiaHtml}
+    `;
+    configPanel.appendChild(creditsSummary);
+
     const subjectsList = document.createElement("div");
     subjectsList.className = "sia-horario-subjects-list";
 
