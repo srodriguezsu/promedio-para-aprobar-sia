@@ -32,8 +32,9 @@ export function buildProgressData(asignaturasPorSemestre) {
         });
 
     let acumulado = 0;
+    const allSubjectsSoFar = [];
 
-    // Map sorted semesters to progress objects with running accumulated credits
+    // Map sorted semesters to progress objects with running accumulated credits and PAPA
     return semestres.map(semestre => {
         const semesterData = asignaturasPorSemestre[semestre];
         let creditosAprobados = semesterData.creditosAprobados || 0;
@@ -49,14 +50,32 @@ export function buildProgressData(asignaturasPorSemestre) {
                     return asig.estado === "APROBADA" && normComponente !== "NIVELACION";
                 })
                 .reduce((sum, asig) => sum + (asig.creditos || 0), 0);
+            
+            // Accumulate all subjects from the start up to the current semester to calculate cumulative PAPA
+            allSubjectsSoFar.push(...semesterData.asignaturas);
         }
 
         acumulado += creditosAprobados;
 
+        // Calculate cumulative PAPA (Aritmético Ponderado Acumulado) up to this semester
+        // Formula: Sum(Credits * Grade) / Sum(Credits) for all graded subjects
+        let totalWeightedGrades = 0;
+        let totalPapaCredits = 0;
+
+        allSubjectsSoFar.forEach(asig => {
+            if (Number.isFinite(asig.calificacion) && Number.isFinite(asig.creditos)) {
+                totalWeightedGrades += asig.calificacion * asig.creditos;
+                totalPapaCredits += asig.creditos;
+            }
+        });
+
+        const papaAcumulado = totalPapaCredits > 0 ? (totalWeightedGrades / totalPapaCredits) : 0;
+
         return {
             semestre,
             acumulado,
-            creditosDelSemestre: creditosAprobados
+            creditosDelSemestre: creditosAprobados,
+            papaAcumulado: parseFloat(papaAcumulado.toFixed(2))
         };
     });
 }
@@ -76,12 +95,9 @@ export function buildProgressData(asignaturasPorSemestre) {
  * }>} Array of projected future semesters with expected accumulated credits.
  */
 export function proyectarSemestres(progressData, totalExigidos) {
-    const promedio = calcularPromedioPorSemestre(progressData);
-
-    // If average is 0 or negative, we cannot project future progress
-    if (promedio <= 0) {
-        return [];
-    }
+    const rawPromedio = calcularPromedioPorSemestre(progressData);
+    // Use at least 10 credits per semester (minimum load) for future projections
+    const promedio = Math.max(10, rawPromedio);
 
     let ultimoAcumulado = progressData.at(-1).acumulado;
     let semestreIndex = 1;
