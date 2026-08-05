@@ -214,7 +214,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                     labels,
                     datasets: [
                         {
-                            label: "PAPA Acumulado",
+                            label: "PAPA",
                             data: dataPapa,
                             borderColor: "#0f6d59",
                             backgroundColor: "rgba(15,109,89,0.1)",
@@ -284,7 +284,7 @@ function renderChart(container, progressData, proyeccion, totalExigidos) {
                             },
                             title: {
                                 display: true,
-                                text: 'PAPA Acumulado',
+                                text: 'PAPA',
                                 font: {
                                     size: 13,
                                     weight: 'bold'
@@ -413,7 +413,7 @@ export function renderAvanceProgress(container) {
                 <th>Créditos del Semestre</th>
                 <th>Créditos Acumulados</th>
                 <th>% del Total</th>
-                <th>PAPA Acumulado</th>
+                <th>PAPA</th>
             </tr>
         </thead>
         <tbody>

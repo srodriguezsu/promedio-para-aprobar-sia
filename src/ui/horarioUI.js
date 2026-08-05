@@ -19,7 +19,26 @@ export function renderHorario(container) {
     if (!container) return;
     container.innerHTML = "";
 
-    const subjects = loadSelectedSubjects();
+    const subjects = loadSelectedSubjects().sort((a, b) => {
+        // 1. Sort by tipologia (alphabetically)
+        const tipoA = (a.tipologia || "").toUpperCase();
+        const tipoB = (b.tipologia || "").toUpperCase();
+        if (tipoA !== tipoB) {
+            return tipoA.localeCompare(tipoB);
+        }
+        
+        // 2. Sort by credits (descending: more credits first)
+        const credA = parseInt(a.creditos, 10) || 0;
+        const credB = parseInt(b.creditos, 10) || 0;
+        if (credA !== credB) {
+            return credB - credA;
+        }
+        
+        // 3. Sort by name (alphabetically)
+        const nameA = (a.name || "").toUpperCase();
+        const nameB = (b.name || "").toUpperCase();
+        return nameA.localeCompare(nameB);
+    });
     const selections = loadSelectedGroups();
 
     const wrapper = document.createElement("div");
@@ -221,10 +240,23 @@ export function renderHorario(container) {
     const calendarPanel = document.createElement("div");
     calendarPanel.className = "sia-horario-calendar-panel";
 
+    const calendarHeader = document.createElement("div");
+    calendarHeader.className = "sia-horario-calendar-header";
+
     const calendarTitle = document.createElement("h3");
     calendarTitle.textContent = "Calendario Semanal";
     calendarTitle.className = "sia-horario-panel-title";
-    calendarPanel.appendChild(calendarTitle);
+    calendarHeader.appendChild(calendarTitle);
+
+    const printBtn = document.createElement("button");
+    printBtn.className = "sia-horario-print-btn";
+    printBtn.innerHTML = "💾 Guardar PDF";
+    printBtn.addEventListener("click", () => {
+        printSchedule(calendarPanel, subjects, selections);
+    });
+    calendarHeader.appendChild(printBtn);
+
+    calendarPanel.appendChild(calendarHeader);
 
     const calendarGrid = renderCalendarGrid(subjects, selections);
     calendarPanel.appendChild(calendarGrid);
@@ -349,12 +381,12 @@ function renderCalendarGrid(subjects, selections) {
                 block.style.borderLeftColor = darkenColor(subjectColor, 20);
             }
 
+            const shortName = shortenCourseName(subj.name);
             block.innerHTML = `
-                <div class="event-title" title="${subj.name}">${subj.name}</div>
-                <div class="event-meta" title="${selectedGroup.name} - ${selectedGroup.profesor || "Sin prof."}">
-                    ${selectedGroup.name} - ${selectedGroup.profesor ? selectedGroup.profesor.split(" ").slice(0, 2).join(" ") : "Sin prof."}
+                <div class="event-title" title="${subj.name}">${shortName}</div>
+                <div class="event-meta" title="Grupo: ${selectedGroup.name}">
+                    ${selectedGroup.name}
                 </div>
-                <div class="event-room" title="${h.aula}">${h.aula}</div>
                 ${hasConflicts ? `<div class="event-conflict-badge">⚠️ Conflicto</div>` : ""}
             `;
 
@@ -379,4 +411,231 @@ function darkenColor(hex, percent) {
     G = (num >> 8 & 0x00FF) - amt,
     B = (num & 0x0000FF) - amt;
     return "#" + (0x1000000 + (R<0?0:R>255?255:R)*0x10000 + (G<0?0:G>255?255:G)*0x100 + (B<0?0:B>255?255:B)).toString(16).slice(1);
+}
+
+/**
+ * Creates a hidden iframe, extracts current stylesheets, injects the calendar panel HTML,
+ * detailed course list, and academic metrics, and triggers Chrome's native print dialog.
+ * 
+ * @param {HTMLElement} calendarPanel - The visual calendar element.
+ * @param {HTMLElement} creditsSummary - The sidebar credits metrics container.
+ * @param {Array.<Object>} subjects - List of all selected subjects.
+ * @param {Object.<string, string>} selections - Map of subject name to selected group name.
+ * @returns {void}
+ */
+/**
+ * Creates a hidden iframe, extracts current stylesheets, injects the calendar panel HTML
+ * and the detailed course list, and triggers Chrome's native print dialog.
+ * 
+ * @param {HTMLElement} calendarPanel - The visual calendar element.
+ * @param {Array.<Object>} subjects - List of all selected subjects.
+ * @param {Object.<string, string>} selections - Map of subject name to selected group name.
+ * @returns {void}
+ */
+function printSchedule(calendarPanel, subjects, selections) {
+    const printIframe = document.createElement("iframe");
+    printIframe.style.position = "fixed";
+    printIframe.style.right = "0";
+    printIframe.style.bottom = "0";
+    printIframe.style.width = "0";
+    printIframe.style.height = "0";
+    printIframe.style.border = "0";
+    document.body.appendChild(printIframe);
+
+    const doc = printIframe.contentWindow.document;
+
+    // Extract all stylesheets currently loaded in the DOM to preserve extension colors & designs
+    let cssText = "";
+    for (const sheet of document.styleSheets) {
+        try {
+            for (const rule of sheet.cssRules) {
+                cssText += rule.cssText + "\n";
+            }
+        } catch (e) {
+            // Ignore cross-origin stylesheet errors
+        }
+    }
+
+    // Generate detailed table HTML for selected subjects
+    let subjectsTableHTML = `
+        <table class="print-subjects-table">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Grupo</th>
+                    <th>Créditos</th>
+                    <th>Tipología</th>
+                    <th>Profesor</th>
+                    <th>Horario / Aula</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    let hasSelectedSubjects = false;
+    subjects.forEach(subj => {
+        const selectedGroupName = selections[subj.name];
+        if (!selectedGroupName) return;
+
+        const selectedGroup = subj.groups?.find(g => g.name === selectedGroupName);
+        if (!selectedGroup) return;
+
+        hasSelectedSubjects = true;
+        const scheduleStrings = selectedGroup.horarios.map(h => `${h.dia}: ${h.horaInicio}-${h.horaFin} (${h.aula})`).join("<br>");
+        const componentText = subj.tipologia || "-";
+
+        subjectsTableHTML += `
+            <tr>
+                <td><strong>${subj.name}</strong></td>
+                <td>${selectedGroup.name}</td>
+                <td>${subj.creditos}</td>
+                <td>${componentText}</td>
+                <td>${selectedGroup.profesor || "Sin prof."}</td>
+                <td>${scheduleStrings}</td>
+            </tr>
+        `;
+    });
+
+    subjectsTableHTML += `
+            </tbody>
+        </table>
+    `;
+
+    if (!hasSelectedSubjects) {
+        subjectsTableHTML = "<p class='no-subjects'>No has seleccionado grupos para tu horario.</p>";
+    }
+
+    doc.write(`
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <title>Horario SIA Pro</title>
+                <style>
+                    ${cssText}
+                </style>
+                <style>
+                    @page {
+                        size: landscape;
+                        margin: 10mm;
+                    }
+                    body { 
+                        padding: 0; 
+                        margin: 0;
+                        background: white !important; 
+                        font-family: system-ui, -apple-system, sans-serif; 
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    .sia-horario-calendar-panel { 
+                        box-shadow: none !important; 
+                        border: none !important; 
+                        width: 100% !important; 
+                        margin: 0 !important; 
+                    }
+                    /* Hide print action button in the output PDF */
+                    .sia-horario-print-btn {
+                        display: none !important;
+                    }
+                    
+                    /* Force visible borders for the grid when printing */
+                    .calendar-bg-cell {
+                        border-bottom: 1px solid #cbd5e1 !important;
+                        border-right: 1px solid #cbd5e1 !important;
+                    }
+                    .calendar-hour-label {
+                        border-right: 2px solid #94a3b8 !important;
+                        border-bottom: 1px solid #cbd5e1 !important;
+                    }
+                    .calendar-header-cell {
+                        border-bottom: 2px solid #94a3b8 !important;
+                        border-right: 1px solid #cbd5e1 !important;
+                    }
+                    
+                    /* Detailed view styling for printing */
+                    .print-details-container {
+                        margin-top: 24px;
+                        page-break-inside: avoid;
+                    }
+                    .print-details-container h3 {
+                        margin-top: 0;
+                        margin-bottom: 12px;
+                        color: #0f6d59;
+                        border-bottom: 2px solid #edf2f7;
+                        padding-bottom: 8px;
+                        font-size: 13px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .print-subjects-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-size: 10.5px;
+                    }
+                    .print-subjects-table th, .print-subjects-table td {
+                        padding: 8px 10px;
+                        text-align: left;
+                        border-bottom: 1px solid #edf2f7;
+                        line-height: 1.3;
+                    }
+                    .print-subjects-table th {
+                        font-weight: 700;
+                        color: #475569;
+                        background: #f8fafc;
+                        border-bottom: 2px solid #e2e8f0;
+                    }
+                    .print-subjects-table td {
+                        color: #334155;
+                    }
+                    
+                    /* Force contrast for colors inside grid cells during printing */
+                    .calendar-event-block * {
+                        color: #ffffff !important;
+                    }
+                    .calendar-event-block.conflict * {
+                        color: #b91c1c !important;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="sia-horario-calendar-panel">
+                    ${calendarPanel.innerHTML}
+                </div>
+                <div class="print-details-container">
+                    <h3>Detalle de Asignaturas Seleccionadas</h3>
+                    ${subjectsTableHTML}
+                </div>
+            </body>
+        </html>
+    `);
+    doc.close();
+
+    // Temporarily swap document title so Chrome uses it as the default PDF file name
+    const originalTitle = document.title;
+    document.title = "Mi Horario - SIA Pro";
+
+    // Trigger printing and cleanup directly from content script (safe from CSP inline-script blocks)
+    setTimeout(() => {
+        printIframe.contentWindow.print();
+        
+        // Restore parent page title immediately after print dialog opens
+        document.title = originalTitle;
+        
+        setTimeout(() => {
+            printIframe.remove();
+        }, 500);
+    }, 500);
+}
+
+/**
+ * Truncates course names to their first characters to fit cleanly inside calendar blocks.
+ * 
+ * @param {string} name - The original course name.
+ * @returns {string} The shortened course name.
+ */
+function shortenCourseName(name) {
+    if (!name) return "";
+    if (name.length > 15) {
+        return name.slice(0, 15).trim() + "...";
+    }
+    return name;
 }
