@@ -33,5 +33,7 @@ export const SELECTORS = {
     subjectGroupDetails: "div.margin-t.af_panelGroupLayout > div > span.af_panelGroupLayout",
     subjectGroupSchedule: "span.lista-elemento.sin-descripcion.af_panelGroupLayout",
 
+    prerequisitesHeader: "span.strong.af_panelGroupLayout",
+
 };
 

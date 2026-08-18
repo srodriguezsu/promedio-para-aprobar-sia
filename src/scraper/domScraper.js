@@ -222,6 +222,19 @@ export function areGradeContainersAvailable() {
     return gradeContainers && gradeContainers.length > 0;
 }
 
+
+function extractPrerequisitesFromDom(element) {
+    const prerequisites = [];
+    console.log("[SIA Pro] Elemento de prerrequisitos:", element);
+
+    const headerElement = element.querySelector(SELECTORS.prerequisitesHeader);
+    if (headerElement) {
+        console.log("[SIA Pro] Sección de prerrequisitos encontrada:", headerElement.textContent.trim());
+    } else {
+        console.warn("[SIA Pro] No se encontró el encabezado de prerrequisitos en el elemento proporcionado.");
+    }
+}
+
 /**
  * Scrapes all details and academic groups of the subject currently displayed in the enrollment view.
  * Extracts metadata like typology, credits, faculty, career/program, and details for each class group 
@@ -279,13 +292,31 @@ export function extractAsignaturaParaCursar() {
         }
     });
 
-    const groupElements = document.querySelectorAll(SELECTORS.subjectGroupsToEnroll);
+    let groupElementsArray = Array.from(document.querySelectorAll(SELECTORS.subjectGroupsToEnroll));
     const groups = [];
 
-    // Parse each class group section
-    groupElements.forEach((groupElement) => {
-        const groupNameText = groupElement.querySelector("h2")?.textContent.trim();
+    // Remove the first element (contenido de la asignatura) as it is not a real group
+    if (groupElementsArray.length > 0) {
+        groupElementsArray.shift();
+    }
 
+    // Remove the last element (Prerrequisitos) as it is not a real group
+    if (groupElementsArray.length > 0) {
+        const prerequisitesSection = groupElementsArray.pop();
+        console.log("[SIA Pro] Eliminando sección de prerrequisitos...");
+        if (prerequisitesSection) {
+            scrapedSubject.prerequisites = extractPrerequisitesFromDom(prerequisitesSection);
+        }
+    }
+
+    if (groupElementsArray.length === 0) {
+        console.warn("[SIA Pro] No se encontraron grupos de la asignatura para inscripción.");
+        return scrapedSubject;
+    }
+
+    // Parse each class group section
+    groupElementsArray.forEach((groupElement) => {
+        const groupNameText = groupElement.querySelector("h2")?.textContent.trim();
         if (!groupNameText) {
             return;
         }
@@ -383,6 +414,6 @@ export function extractAsignaturaParaCursar() {
     });
 
     scrapedSubject.groups = groups;
-    
+
     return scrapedSubject;
 }
