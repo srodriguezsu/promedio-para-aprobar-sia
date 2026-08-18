@@ -224,15 +224,46 @@ export function areGradeContainersAvailable() {
 
 
 function extractPrerequisitesFromDom(element) {
-    const prerequisites = [];
-    console.log("[SIA Pro] Elemento de prerrequisitos:", element);
+
+    const tiposPrerequisitos = {
+        "M": "No se puede matricular la asignatura sin superar el prerrequisito",
+        "O": "Podrá matricular, pero no ser calificado sin la superación del prerrequisito.",
+        "E": "O matricula el prerrequisito simultáneamente, o lo ha matriculado alguna vez.",
+        "A": "Aanulación por incompatibilidad. Si se matricula de las dos asignaturas afectadas por el prerrequisito y no supera la asignatura llave, las asignaturas afectadas por el prerrequisito aparecerán como anuladas."
+    };
+
+    const prerequisite = {};
 
     const headerElement = element.querySelector(SELECTORS.prerequisitesHeader);
     if (headerElement) {
-        console.log("[SIA Pro] Sección de prerrequisitos encontrada:", headerElement.textContent.trim());
+        const headerText = headerElement.textContent.trim();
+
+        // Extract Tipo and ¿Todas? from strings like:
+        // "Condición 1Tipo M¿Todas? [S]Número asignaturas []"
+        const typeMatch = headerText.match(/Tipo\s*([^\s¿]+)/i);
+        const allMatch = headerText.match(/¿\s*Todas\?\s*\[([^\]]*)\]/i);
+
+        prerequisite.tipo = tiposPrerequisitos[typeMatch?.[1]?.trim() || null] || null;
+        prerequisite.todas = allMatch?.[1]?.trim() == "S" ? true : false;
+
     } else {
-        console.warn("[SIA Pro] No se encontró el encabezado de prerrequisitos en el elemento proporcionado.");
+        console.warn("[SIA Pro] No se encontró la información de prerrequisito en el elemento proporcionado.");
+        return null;
     }
+
+    const listAsignaturasElement = element.querySelectorAll(SELECTORS.prerequisitesList);
+
+    prerequisite.asignaturas = Array.from(listAsignaturasElement).map((asignaturaElement) => {
+
+        const codigoNombreElements = asignaturaElement.querySelectorAll('span.margin-l');
+        // First element is the code, second is the name
+        const codigoAsignatura = codigoNombreElements[0]?.textContent.trim() || "N/A";
+        const nombreAsignatura = codigoNombreElements[1]?.textContent.trim() || "N/A";
+
+        return `${nombreAsignatura} (${codigoAsignatura})`;
+    });
+
+    return prerequisite;
 }
 
 /**
@@ -272,6 +303,7 @@ export function extractAsignaturaParaCursar() {
 
     const scrapedSubject = {
         name: subjectTitleElement.textContent.trim(),
+        prerrequistios: []
     };
 
     const detailElements = document.querySelectorAll(SELECTORS.subjectDetailsToEnroll);
@@ -300,15 +332,6 @@ export function extractAsignaturaParaCursar() {
         groupElementsArray.shift();
     }
 
-    // Remove the last element (Prerrequisitos) as it is not a real group
-    if (groupElementsArray.length > 0) {
-        const prerequisitesSection = groupElementsArray.pop();
-        console.log("[SIA Pro] Eliminando sección de prerrequisitos...");
-        if (prerequisitesSection) {
-            scrapedSubject.prerequisites = extractPrerequisitesFromDom(prerequisitesSection);
-        }
-    }
-
     if (groupElementsArray.length === 0) {
         console.warn("[SIA Pro] No se encontraron grupos de la asignatura para inscripción.");
         return scrapedSubject;
@@ -318,6 +341,9 @@ export function extractAsignaturaParaCursar() {
     groupElementsArray.forEach((groupElement) => {
         const groupNameText = groupElement.querySelector("h2")?.textContent.trim();
         if (!groupNameText) {
+            // If no group name is found, then this is a prerequisite section
+            const prerequisite = extractPrerequisitesFromDom(groupElement);
+            scrapedSubject.prerrequistios.push(prerequisite);
             return;
         }
 
@@ -414,6 +440,8 @@ export function extractAsignaturaParaCursar() {
     });
 
     scrapedSubject.groups = groups;
+
+    console.log("[SIA Pro] Asignatura para cursar extraída:", scrapedSubject);
 
     return scrapedSubject;
 }
