@@ -367,7 +367,10 @@ export function extractAsignaturaParaCursar() {
             } else if (groupDetailText.includes("Jornada")) {
                 scrapedGroup.jornada = groupDetailText.replace("Jornada:", "").trim();
             } else if (groupDetailText.includes("Cupos disponibles")) {
-                scrapedGroup.cuposDisponibles = groupDetailText.replace("Cupos disponibles:", "").trim();
+                // Convert available seats to integer
+                const cuposText = groupDetailText.replace("Cupos disponibles:", "").trim();
+                const cuposInt = parseInt(cuposText.replace(/[^0-9-]/g, ""), 10);
+                scrapedGroup.cuposDisponibles = Number.isNaN(cuposInt) ? null : cuposInt;
             }
         });
 
@@ -380,9 +383,6 @@ export function extractAsignaturaParaCursar() {
     });
 
     scrapedSubject.groups = groups;
-
-    // Log the fully parsed subject summary tree for development analysis
-    console.log("[SIA Pro] Asignatura de inscripción procesada:", scrapedSubject);
-
+    
     return scrapedSubject;
 }

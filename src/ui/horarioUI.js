@@ -424,7 +424,7 @@ function renderCalendarGrid(subjects, selections) {
             block.innerHTML = `
                 <div class="event-title" title="${subj.name}">${shortName}</div>
                 <div class="event-meta" title="Grupo: ${selectedGroup.name}">
-                    Grupo ${selectedGroup.name}
+                    ${selectedGroup.name}
                 </div>
                 <div class="event-room" title="Aula: ${h.aula || 'No asignada'}">
                     📍 ${h.aula || 'No asignada'}
@@ -635,6 +635,10 @@ function printSchedule(calendarPanel, subjects, selections) {
                     }
                     .calendar-event-block.conflict * {
                         color: #b91c1c !important;
+                    }
+                    /* Hide classroom info in calendar grid during printing */
+                    .calendar-event-block .event-room {
+                        display: none !important;
                     }
                 </style>
             </head>
