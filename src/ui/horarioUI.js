@@ -226,7 +226,8 @@ export function renderHorario(container) {
                         suffix = ` ⚠️ (Conflicto con: ${conflicts.map(c => c.subjectName).join(", ")})`;
                     }
 
-                    const infoText = scheduleText ? ` - ${g.profesor || "Sin profesor"} (${scheduleText})` : ` - ${g.profesor || "Sin profesor"}`;
+                    const cuposText = typeof g.cuposDisponibles === "number" ? ` | Cupos: ${g.cuposDisponibles}` : "";
+                    const infoText = scheduleText ? ` - ${g.profesor || "Sin profesor"} (${scheduleText})${cuposText}` : ` - ${g.profesor || "Sin profesor"}${cuposText}`;
                     opt.textContent = `${g.name}${infoText}${suffix}`;
                     select.appendChild(opt);
                 });
@@ -253,6 +254,13 @@ export function renderHorario(container) {
             // Display current selections conflict warning banner if exists
             const currentGroup = subject.groups?.find(g => g.name === selectedGroupVal);
             if (currentGroup) {
+                if (typeof currentGroup.cuposDisponibles === "number") {
+                    const cuposBadge = document.createElement("div");
+                    cuposBadge.className = "group-selection-cupos-banner";
+                    cuposBadge.innerHTML = `🟢 <strong>Cupos disponibles:</strong> ${currentGroup.cuposDisponibles}`;
+                    selectorContainer.appendChild(cuposBadge);
+                }
+
                 const activeConflicts = getConflictsForGroup(subject.name, currentGroup);
                 if (activeConflicts.length > 0) {
                     const warning = document.createElement("div");
@@ -287,12 +295,31 @@ export function renderHorario(container) {
     calendarTitle.className = "sia-horario-panel-title";
     calendarHeader.appendChild(calendarTitle);
 
+    let hasAnyConflict = false;
+    subjects.forEach((subj) => {
+        const selectedGroupName = selections[subj.name];
+        if (selectedGroupName) {
+            const selectedGroup = subj.groups?.find(g => g.name === selectedGroupName);
+            if (selectedGroup) {
+                const activeConflicts = getConflictsForGroup(subj.name, selectedGroup);
+                if (activeConflicts.length > 0) {
+                    hasAnyConflict = true;
+                }
+            }
+        }
+    });
+
     const printBtn = document.createElement("button");
     printBtn.className = "sia-horario-print-btn";
     printBtn.innerHTML = "💾 Guardar PDF";
-    printBtn.addEventListener("click", () => {
-        printSchedule(calendarPanel, subjects, selections);
-    });
+    if (hasAnyConflict) {
+        printBtn.disabled = true;
+        printBtn.title = "No puedes guardar el PDF si existen conflictos en tu horario.";
+    } else {
+        printBtn.addEventListener("click", () => {
+            printSchedule(calendarPanel, subjects, selections);
+        });
+    }
     calendarHeader.appendChild(printBtn);
 
     calendarPanel.appendChild(calendarHeader);
@@ -421,12 +448,27 @@ function renderCalendarGrid(subjects, selections) {
             }
 
             const shortName = shortenCourseName(subj.name);
+            
+            // Build a detailed tooltip for hover info
+            const tooltipParts = [
+                `Asignatura: ${subj.name}`,
+                selectedGroup.name,
+                `Créditos: ${subj.creditos || "N/A"} | Tipología: ${subj.tipologia || "N/A"}`,
+                `Profesor: ${selectedGroup.profesor || "Sin profesor"}`,
+                `Horario: ${h.dia} ${h.horaInicio}-${h.horaFin}`,
+                `Aula: ${h.aula || "Sin aula"} `
+            ];
+            if (typeof selectedGroup.cuposDisponibles === "number") {
+                tooltipParts.push(`Cupos Disponibles: ${selectedGroup.cuposDisponibles}`);
+            }
+            block.title = tooltipParts.join("\n");
+
             block.innerHTML = `
-                <div class="event-title" title="${subj.name}">${shortName}</div>
-                <div class="event-meta" title="Grupo: ${selectedGroup.name}">
+                <div class="event-title">${shortName}</div>
+                <div class="event-meta">
                     ${selectedGroup.name}
                 </div>
-                <div class="event-room" title="Aula: ${h.aula || 'No asignada'}">
+                <div class="event-room">
                     📍 ${h.aula || 'No asignada'}
                 </div>
                 ${hasConflicts ? `<div class="event-conflict-badge">⚠️ Conflicto</div>` : ""}

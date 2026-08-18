@@ -181,6 +181,17 @@
     line-height: 1.4;
 }
 
+.group-selection-cupos-banner {
+    margin-top: 8px;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 0.8rem;
+    color: #166534;
+    line-height: 1.4;
+}
+
 /* Weekly Calendar Grid */
 .sia-calendar-grid {
     background: #ffffff;
@@ -474,6 +485,21 @@
     background-color: #0d5f4d;
     border-color: #0d5f4d;
     box-shadow: 0 2px 4px rgba(15, 109, 89, 0.15);
+}
+
+.sia-horario-print-btn:disabled {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.8;
+}
+
+.sia-horario-print-btn:disabled:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    box-shadow: none;
 }
 
 /* Typology Section Styling */
