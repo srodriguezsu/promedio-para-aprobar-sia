@@ -458,7 +458,5 @@ export function extractAsignaturaParaCursar() {
 
     scrapedSubject.groups = groups;
 
-    console.log("[SIA Pro] Asignatura para cursar extraída:", scrapedSubject);
-
     return scrapedSubject;
 }

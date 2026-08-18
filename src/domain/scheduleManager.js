@@ -60,17 +60,27 @@ export function saveSelectedGroups(selections) {
 }
 
 /**
- * Adds a subject to the selected list if it doesn't already exist.
- * 
- * @param {Object} subject - The scraped subject object to add.
- * @returns {boolean} True if added, false if already present.
+ * Adds a subject to the selected list or replaces the existing entry with the
+ * latest scraped data for the same subject name.
+ *
+ * This keeps the horario in sync with cupos and schedule changes when the DOM
+ * is scraped again for a subject that is already selected.
+ *
+ * @param {Object} subject - The scraped subject object to add or replace.
+ * @returns {boolean} True if a new subject was added, false if an existing one was replaced.
  */
 export function addSubject(subject) {
     if (!subject || !subject.name) return false;
+
     const subjects = loadSelectedSubjects();
-    const exists = subjects.some(s => s.name === subject.name);
-    if (exists) return false;
-    
+    const index = subjects.findIndex(s => s.name === subject.name);
+
+    if (index >= 0) {
+        subjects[index] = subject;
+        saveSelectedSubjects(subjects);
+        return false;
+    }
+
     subjects.push(subject);
     saveSelectedSubjects(subjects);
     return true;
