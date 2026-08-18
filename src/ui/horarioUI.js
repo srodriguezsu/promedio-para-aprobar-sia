@@ -6,7 +6,7 @@ import {
     getConflictsForGroup
 } from "../domain/scheduleManager.js";
 import { updateButtonState } from "./originalUiInjector.js";
-import { isSubjectApproved } from "../domain/historyManager.js";
+import { isSubjectApproved, loadCachedAsignaturas } from "../domain/historyManager.js";
 import { isSubjectAdded } from "../domain/scheduleManager.js";
 
 /**
@@ -254,62 +254,99 @@ export function renderHorario(container) {
             selectorContainer.appendChild(select);
 
             // Prerequisites logic and UI
-            let enrollmentBlocked = false;
             if (subject.prerrequistios && subject.prerrequistios.length > 0) {
                 const prereqContainer = document.createElement("div");
                 prereqContainer.className = "subject-prereq-container";
-                prereqContainer.style.marginTop = "8px";
+                const prereqToggle = document.createElement("button");
+                prereqToggle.type = "button";
+                prereqToggle.className = "subject-prereq-toggle";
+                const prereqPanel = document.createElement("div");
+                prereqPanel.className = "subject-prereq-panel";
 
-                const list = document.createElement("ul");
-                list.className = "subject-prereq-list";
-                list.style.margin = "8px 0 0 0";
-                list.style.padding = "0 0 0 16px";
+                const historyData = loadCachedAsignaturas();
+                const hasHistory = !!(historyData && Object.keys(historyData).length > 0);
+                const getKnownApprovalStatus = (identifier) => {
+                    if (!hasHistory) {
+                        return { state: "unknown-history", label: "Historia académica no cargada" };
+                    }
 
-                const banners = [];
+                    const approved = isSubjectApproved(identifier);
+                    if (approved) {
+                        return { state: "approved", label: "Aprobada" };
+                    }
 
-                subject.prerrequistios.forEach((pr) => {
+                    return { state: "not-approved", label: "No aprobada o no encontrada en la historia" };
+                };
+
+                const prereqStateKey = `sia_prereq_open_${subject.name}`;
+                const storedState = localStorage.getItem(prereqStateKey);
+                let prereqOpen = storedState === null ? false : storedState === "true";
+
+                const syncToggle = () => {
+                    prereqToggle.setAttribute("aria-expanded", prereqOpen ? "true" : "false");
+                    prereqToggle.textContent = prereqOpen
+                        ? "Prerrequisitos"
+                        : "Prerrequisitos";
+                    prereqPanel.hidden = !prereqOpen;
+                    prereqContainer.classList.toggle("is-open", prereqOpen);
+                };
+
+                prereqToggle.addEventListener("click", () => {
+                    prereqOpen = !prereqOpen;
+                    localStorage.setItem(prereqStateKey, String(prereqOpen));
+                    syncToggle();
+                });
+
+                subject.prerrequistios.forEach((pr, idx) => {
+                    const conditionCard = document.createElement("div");
+                    conditionCard.className = "subject-prereq-condition";
+
                     const headerPr = document.createElement("div");
                     headerPr.className = "subject-prereq-group-title";
-                    headerPr.textContent = pr.tipoDescripcion || (`Prerrequisito ${pr.tipo || ""}`);
-                    headerPr.style.fontSize = "12px";
-                    headerPr.style.color = "#334155";
-                    headerPr.style.marginTop = "6px";
-                    prereqContainer.appendChild(headerPr);
+                    headerPr.textContent = `Condición ${idx + 1}`;
+
+                    const typeDesc = document.createElement("div");
+                    typeDesc.className = "subject-prereq-type-desc";
+                    typeDesc.textContent = pr.tipoDescripcion || "Sin descripción";
+
+                    const todasLine = document.createElement("div");
+                    todasLine.className = "subject-prereq-todas";
 
                     const reqs = pr.asignaturas || [];
                     let satisfiedCount = 0;
-                    const missing = [];
+
+                    const list = document.createElement("ul");
+                    list.className = "subject-prereq-list";
 
                     reqs.forEach((asigStr) => {
                         const codeMatch = asigStr.match(/\(([^)]+)\)$/);
                         const code = codeMatch ? codeMatch[1].trim() : null;
                         const name = asigStr.replace(/\([^)]*\)$/, "").trim();
 
-                        const approved = isSubjectApproved(code || name || asigStr);
+                        const approvalStatus = getKnownApprovalStatus(code || name || asigStr);
                         const enrolledSimult = isSubjectAdded(name) || (code && isSubjectAdded(code));
-
-                        const countsAsSatisfied = (pr.tipo === "E") ? (approved || enrolledSimult) : approved;
+                        const countsAsSatisfied = approvalStatus.state === "approved" || (pr.tipo === "E" && enrolledSimult);
 
                         if (countsAsSatisfied) {
                             satisfiedCount++;
-                        } else {
-                            missing.push(asigStr);
                         }
 
                         const li = document.createElement("li");
-                        li.style.listStyle = "none";
-                        li.style.margin = "4px 0";
+                        li.className = "subject-prereq-item";
 
                         const status = document.createElement("span");
-                        status.textContent = countsAsSatisfied ? "✓" : "✖";
-                        status.style.color = countsAsSatisfied ? "#10b981" : "#ef4444";
-                        status.style.marginRight = "8px";
-                        status.style.fontWeight = "700";
+                        status.className = `prereq-status-dot prereq-status-dot-${approvalStatus.state}`;
+                        if (approvalStatus.state === "approved") {
+                            status.textContent = "✓";
+                        } else if (approvalStatus.state === "unknown-history") {
+                            status.textContent = "?";
+                        } else {
+                            status.textContent = "✖";
+                        }
 
                         const text = document.createElement("span");
+                        text.className = "subject-prereq-item-name";
                         text.textContent = asigStr;
-                        text.style.fontSize = "13px";
-                        text.style.color = "#0f172a";
 
                         li.appendChild(status);
                         li.appendChild(text);
@@ -318,56 +355,21 @@ export function renderHorario(container) {
 
                     const blockSatisfied = pr.todas ? (satisfiedCount === (reqs.length || 0)) : (satisfiedCount > 0);
 
-                    if (pr.tipo === "M") {
-                        if (!blockSatisfied) {
-                            enrollmentBlocked = true;
-                            banners.push({ level: "error", text: `No puedes matricular esta asignatura sin aprobar: ${missing.join(", ")}` });
-                        }
-                    } else if (pr.tipo === "O") {
-                        if (!blockSatisfied) {
-                            banners.push({ level: "warning", text: `Puedes matricularte, pero no serás calificado hasta aprobar: ${missing.join(", ")}` });
-                        }
-                    } else if (pr.tipo === "E") {
-                        if (!blockSatisfied) {
-                            banners.push({ level: "info", text: `Recomendado matricular también: ${missing.join(", ")}` });
-                        }
-                    } else if (pr.tipo === "A") {
-                        banners.push({ level: "warning", text: `Atención: ${pr.tipoDescripcion || "Incompatibilidad con: " + (reqs.join(", "))}` });
-                    } else {
-                        if (!blockSatisfied) {
-                            banners.push({ level: "info", text: `Condición: ${missing.join(", ")}` });
-                        }
-                    }
+                    todasLine.textContent = pr.todas ? "Requiere todas las asignaturas listadas." : "Basta con aprobar al menos una asignatura listada.";
+                    todasLine.classList.toggle("is-satisfied", blockSatisfied);
+                    todasLine.classList.toggle("is-unsatisfied", !blockSatisfied);
+
+                    conditionCard.appendChild(headerPr);
+                    conditionCard.appendChild(typeDesc);
+                    conditionCard.appendChild(todasLine);
+                    conditionCard.appendChild(list);
+                    prereqPanel.appendChild(conditionCard);
                 });
 
-                // Render banners
-                const renderBanner = (b) => {
-                    const el = document.createElement("div");
-                    el.className = `prereq-banner prereq-${b.level}`;
-                    el.textContent = b.text;
-                    el.style.fontSize = "13px";
-                    el.style.marginTop = "6px";
-                    el.style.padding = "6px 8px";
-                    el.style.borderRadius = "6px";
-                    if (b.level === "error") {
-                        el.style.background = "#fee2e2";
-                        el.style.color = "#7f1d1d";
-                    } else if (b.level === "warning") {
-                        el.style.background = "#fff7ed";
-                        el.style.color = "#92400e";
-                    } else {
-                        el.style.background = "#ecfeff";
-                        el.style.color = "#064e3b";
-                    }
-                    return el;
-                };
-
-                // Append banners and list
-                banners.forEach(b => prereqContainer.appendChild(renderBanner(b)));
-                prereqContainer.appendChild(list);
-                // Attach to the item later (after header)
+                prereqContainer.appendChild(prereqToggle);
+                prereqContainer.appendChild(prereqPanel);
+                syncToggle();
                 item._prereqContainer = prereqContainer;
-                item._enrollmentBlocked = enrollmentBlocked;
             }
 
             // Display current selections conflict warning banner if exists
@@ -391,16 +393,10 @@ export function renderHorario(container) {
             }
 
             item.appendChild(header);
+            item.appendChild(selectorContainer);
             if (item._prereqContainer) {
-                // If enrollment is blocked for this subject, disable the selector
-                if (item._enrollmentBlocked) {
-                    select.disabled = true;
-                    select.title = "No puedes seleccionar grupo: prerrequisitos obligatorios no cumplidos.";
-                    select.classList.add("disabled-by-prereq");
-                }
                 item.appendChild(item._prereqContainer);
             }
-            item.appendChild(selectorContainer);
             sectionBody.appendChild(item);
         });
 
