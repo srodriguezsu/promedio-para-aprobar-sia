@@ -223,6 +223,22 @@ export function areGradeContainersAvailable() {
 }
 
 
+/**
+ * Extracts prerequisite information from a DOM element representing a prerequisites block.
+ *
+ * The function reads the header to determine the prerequisite type and whether all
+ * listed subjects are required. It then collects the listed subjects (code and name)
+ * found inside the element.
+ *
+ * @param {HTMLElement} element - The DOM element that contains the prerequisite block.
+ * @returns {{
+ *   tipo: string|null,
+ *   todas: boolean,
+ *   asignaturas: string[]
+ * }|null} An object with `tipo` (human-readable description or null), `todas` (true if all
+ * subjects are required), and `asignaturas` (array of "Name (Code)" strings). Returns
+ * null if the expected header is not found.
+ */
 function extractPrerequisitesFromDom(element) {
 
     const tiposPrerequisitos = {
@@ -243,7 +259,8 @@ function extractPrerequisitesFromDom(element) {
         const typeMatch = headerText.match(/Tipo\s*([^\s¿]+)/i);
         const allMatch = headerText.match(/¿\s*Todas\?\s*\[([^\]]*)\]/i);
 
-        prerequisite.tipo = tiposPrerequisitos[typeMatch?.[1]?.trim() || null] || null;
+        prerequisite.tipo = typeMatch?.[1]?.trim() || null;
+        prerequisite.tipoDescripcion = tiposPrerequisitos[prerequisite.tipo] || "Tipo desconocido";
         prerequisite.todas = allMatch?.[1]?.trim() == "S" ? true : false;
 
     } else {
