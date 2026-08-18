@@ -160,6 +160,62 @@ export function loadAllGpaCachedSubjects() {
 }
 
 /**
+ * Checks whether a subject (by name or code) exists in the cached academic history
+ * and has an "APROBADA" status.
+ *
+ * @param {string} identifier - Subject name or code to check (e.g. "Nombre (COD123)" or "COD123").
+ * @returns {boolean} True if the subject is present and approved, false otherwise.
+ */
+export function isSubjectApproved(identifier) {
+    if (!identifier) return false;
+
+    const data = loadCachedAsignaturas();
+    if (!data) return false;
+
+    // Normalize helper: remove diacritics and uppercase
+    const normalize = (s) => s
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toUpperCase()
+        .trim();
+
+    // Try to extract code if identifier contains parentheses like "Name (CODE)"
+    const codeMatch = identifier.match(/\(([^)]+)\)$/);
+    const maybeCode = codeMatch ? codeMatch[1].trim() : null;
+    const maybeName = identifier.replace(/\([^)]*\)$/, "").trim();
+
+    const normId = normalize(identifier);
+    const normCode = maybeCode ? normalize(maybeCode) : null;
+    const normName = maybeName ? normalize(maybeName) : null;
+
+    for (const semestreKey of Object.keys(data)) {
+        const sem = data[semestreKey];
+        if (!sem || !sem.asignaturas) continue;
+        for (const asig of sem.asignaturas) {
+            const nombre = asig.nombre || "";
+            const normNombre = normalize(nombre);
+
+            // Match by code if provided
+            if (normCode && normNombre.includes(normCode)) {
+                if (asig.estado === "APROBADA") return true;
+            }
+
+            // Match by name equality or containment
+            if (normName && (normNombre === normName || normNombre.includes(normName))) {
+                if (asig.estado === "APROBADA") return true;
+            }
+
+            // Fallback: match against full identifier
+            if (normId && (normNombre === normId || normNombre.includes(normId))) {
+                if (asig.estado === "APROBADA") return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Clears all cached academic, GPA, and schedule data from localStorage.
  * 
  * @returns {void}

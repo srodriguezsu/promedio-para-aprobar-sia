@@ -6,6 +6,8 @@ import {
     getConflictsForGroup
 } from "../domain/scheduleManager.js";
 import { updateButtonState } from "./originalUiInjector.js";
+import { isSubjectApproved } from "../domain/historyManager.js";
+import { isSubjectAdded } from "../domain/scheduleManager.js";
 
 /**
  * Renders the Horario simulator view inside the tab container.
@@ -251,6 +253,123 @@ export function renderHorario(container) {
 
             selectorContainer.appendChild(select);
 
+            // Prerequisites logic and UI
+            let enrollmentBlocked = false;
+            if (subject.prerrequistios && subject.prerrequistios.length > 0) {
+                const prereqContainer = document.createElement("div");
+                prereqContainer.className = "subject-prereq-container";
+                prereqContainer.style.marginTop = "8px";
+
+                const list = document.createElement("ul");
+                list.className = "subject-prereq-list";
+                list.style.margin = "8px 0 0 0";
+                list.style.padding = "0 0 0 16px";
+
+                const banners = [];
+
+                subject.prerrequistios.forEach((pr) => {
+                    const headerPr = document.createElement("div");
+                    headerPr.className = "subject-prereq-group-title";
+                    headerPr.textContent = pr.tipoDescripcion || (`Prerrequisito ${pr.tipo || ""}`);
+                    headerPr.style.fontSize = "12px";
+                    headerPr.style.color = "#334155";
+                    headerPr.style.marginTop = "6px";
+                    prereqContainer.appendChild(headerPr);
+
+                    const reqs = pr.asignaturas || [];
+                    let satisfiedCount = 0;
+                    const missing = [];
+
+                    reqs.forEach((asigStr) => {
+                        const codeMatch = asigStr.match(/\(([^)]+)\)$/);
+                        const code = codeMatch ? codeMatch[1].trim() : null;
+                        const name = asigStr.replace(/\([^)]*\)$/, "").trim();
+
+                        const approved = isSubjectApproved(code || name || asigStr);
+                        const enrolledSimult = isSubjectAdded(name) || (code && isSubjectAdded(code));
+
+                        const countsAsSatisfied = (pr.tipo === "E") ? (approved || enrolledSimult) : approved;
+
+                        if (countsAsSatisfied) {
+                            satisfiedCount++;
+                        } else {
+                            missing.push(asigStr);
+                        }
+
+                        const li = document.createElement("li");
+                        li.style.listStyle = "none";
+                        li.style.margin = "4px 0";
+
+                        const status = document.createElement("span");
+                        status.textContent = countsAsSatisfied ? "✓" : "✖";
+                        status.style.color = countsAsSatisfied ? "#10b981" : "#ef4444";
+                        status.style.marginRight = "8px";
+                        status.style.fontWeight = "700";
+
+                        const text = document.createElement("span");
+                        text.textContent = asigStr;
+                        text.style.fontSize = "13px";
+                        text.style.color = "#0f172a";
+
+                        li.appendChild(status);
+                        li.appendChild(text);
+                        list.appendChild(li);
+                    });
+
+                    const blockSatisfied = pr.todas ? (satisfiedCount === (reqs.length || 0)) : (satisfiedCount > 0);
+
+                    if (pr.tipo === "M") {
+                        if (!blockSatisfied) {
+                            enrollmentBlocked = true;
+                            banners.push({ level: "error", text: `No puedes matricular esta asignatura sin aprobar: ${missing.join(", ")}` });
+                        }
+                    } else if (pr.tipo === "O") {
+                        if (!blockSatisfied) {
+                            banners.push({ level: "warning", text: `Puedes matricularte, pero no serás calificado hasta aprobar: ${missing.join(", ")}` });
+                        }
+                    } else if (pr.tipo === "E") {
+                        if (!blockSatisfied) {
+                            banners.push({ level: "info", text: `Recomendado matricular también: ${missing.join(", ")}` });
+                        }
+                    } else if (pr.tipo === "A") {
+                        banners.push({ level: "warning", text: `Atención: ${pr.tipoDescripcion || "Incompatibilidad con: " + (reqs.join(", "))}` });
+                    } else {
+                        if (!blockSatisfied) {
+                            banners.push({ level: "info", text: `Condición: ${missing.join(", ")}` });
+                        }
+                    }
+                });
+
+                // Render banners
+                const renderBanner = (b) => {
+                    const el = document.createElement("div");
+                    el.className = `prereq-banner prereq-${b.level}`;
+                    el.textContent = b.text;
+                    el.style.fontSize = "13px";
+                    el.style.marginTop = "6px";
+                    el.style.padding = "6px 8px";
+                    el.style.borderRadius = "6px";
+                    if (b.level === "error") {
+                        el.style.background = "#fee2e2";
+                        el.style.color = "#7f1d1d";
+                    } else if (b.level === "warning") {
+                        el.style.background = "#fff7ed";
+                        el.style.color = "#92400e";
+                    } else {
+                        el.style.background = "#ecfeff";
+                        el.style.color = "#064e3b";
+                    }
+                    return el;
+                };
+
+                // Append banners and list
+                banners.forEach(b => prereqContainer.appendChild(renderBanner(b)));
+                prereqContainer.appendChild(list);
+                // Attach to the item later (after header)
+                item._prereqContainer = prereqContainer;
+                item._enrollmentBlocked = enrollmentBlocked;
+            }
+
             // Display current selections conflict warning banner if exists
             const currentGroup = subject.groups?.find(g => g.name === selectedGroupVal);
             if (currentGroup) {
@@ -272,6 +391,15 @@ export function renderHorario(container) {
             }
 
             item.appendChild(header);
+            if (item._prereqContainer) {
+                // If enrollment is blocked for this subject, disable the selector
+                if (item._enrollmentBlocked) {
+                    select.disabled = true;
+                    select.title = "No puedes seleccionar grupo: prerrequisitos obligatorios no cumplidos.";
+                    select.classList.add("disabled-by-prereq");
+                }
+                item.appendChild(item._prereqContainer);
+            }
             item.appendChild(selectorContainer);
             sectionBody.appendChild(item);
         });
