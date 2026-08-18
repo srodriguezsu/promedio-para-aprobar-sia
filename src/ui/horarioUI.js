@@ -73,7 +73,6 @@ export function renderHorario(container) {
     // Calculate credit metrics (only for subjects with a group selected)
     let totalCredits = 0;
     let totalSubjectsWithGroup = 0;
-    const creditsByTipologia = {};
 
     subjects.forEach((subject) => {
         const selectedGroupVal = selections[subject.name];
@@ -81,41 +80,14 @@ export function renderHorario(container) {
             const credits = parseInt(subject.creditos, 10) || 0;
             totalCredits += credits;
             totalSubjectsWithGroup++;
-            
-            const tipo = subject.tipologia || "No especificada";
-            creditsByTipologia[tipo] = (creditsByTipologia[tipo] || 0) + credits;
         }
     });
 
     const creditsSummary = document.createElement("div");
     creditsSummary.className = "sia-horario-credits-summary";
 
-    let tipologiaHtml = "";
-    const tipos = Object.keys(creditsByTipologia);
-    if (tipos.length > 0) {
-        tipologiaHtml = `
-            <div class="credits-by-tipo">
-                <h5>Créditos por Tipología</h5>
-                <ul>
-                    ${tipos.map(tipo => `
-                        <li>
-                            <span class="tipo-name">${tipo.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}</span>
-                            <span class="tipo-value">${creditsByTipologia[tipo]} cr</span>
-                        </li>
-                    `).join("")}
-                </ul>
-            </div>
-        `;
-    } else {
-        tipologiaHtml = `
-            <div class="credits-empty-msg">
-                Selecciona un grupo para calcular los créditos.
-            </div>
-        `;
-    }
-
     creditsSummary.innerHTML = `
-        <div class="credits-summary-header">
+        <div class="credits-summary-header no-border">
             <div class="credits-main-metric">
                 <span class="credits-total-num">${totalCredits}</span>
                 <span class="credits-total-label">Créditos Seleccionados</span>
@@ -127,110 +99,177 @@ export function renderHorario(container) {
                 </div>
             </div>
         </div>
-        ${tipologiaHtml}
     `;
     configPanel.appendChild(creditsSummary);
 
     const subjectsList = document.createElement("div");
     subjectsList.className = "sia-horario-subjects-list";
 
+    // Group subjects by typology
+    const subjectsByTypology = {};
     subjects.forEach((subject) => {
-        const item = document.createElement("div");
-        item.className = "sia-horario-subject-item";
+        const tipo = subject.tipologia || "No especificada";
+        if (!subjectsByTypology[tipo]) {
+            subjectsByTypology[tipo] = [];
+        }
+        subjectsByTypology[tipo].push(subject);
+    });
 
-        const header = document.createElement("div");
-        header.className = "subject-item-header";
-        header.innerHTML = `
-            <div class="subject-item-info">
-                <h4>${subject.name}</h4>
-                <span class="subject-item-meta">${subject.creditos || "?"} créditos - ${subject.tipologia || "N/A"}</span>
-            </div>
-            <button class="remove-subject-btn" title="Eliminar asignatura">🗑️</button>
+    // Sort typologies alphabetically
+    const sortedTypologies = Object.keys(subjectsByTypology).sort((a, b) => {
+        return a.toUpperCase().localeCompare(b.toUpperCase());
+    });
+
+    sortedTypologies.forEach((tipo) => {
+        const typologySubjects = subjectsByTypology[tipo];
+        
+        // Calculate total selected credits for this typology
+        let selectedCreditsForTipo = 0;
+        typologySubjects.forEach((subject) => {
+            const selectedGroupVal = selections[subject.name];
+            if (selectedGroupVal) {
+                selectedCreditsForTipo += parseInt(subject.creditos, 10) || 0;
+            }
+        });
+
+        // Create a section container for this typology
+        const section = document.createElement("div");
+        section.className = "sia-horario-typology-section";
+
+        const sectionHeader = document.createElement("div");
+        sectionHeader.className = "sia-horario-typology-header";
+
+        const formattedTipoName = tipo.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+        
+        sectionHeader.innerHTML = `
+            <h4 class="sia-horario-typology-title">${formattedTipoName}</h4>
+            <span class="sia-horario-typology-credits">${selectedCreditsForTipo} ${selectedCreditsForTipo === 1 ? 'crédito' : 'créditos'}</span>
         `;
+        section.appendChild(sectionHeader);
 
-        // Bind remove event
-        header.querySelector(".remove-subject-btn").addEventListener("click", () => {
-            removeSubject(subject.name);
-            // Update the injected page button if it is currently displayed on this page
-            updateButtonState(subject.name);
-            // Rerender Horario tab
-            renderHorario(container);
-        });
+        const sectionBody = document.createElement("div");
+        sectionBody.className = "sia-horario-typology-body";
 
-        // Group selector
-        const selectorContainer = document.createElement("div");
-        selectorContainer.className = "group-selector-container";
+        typologySubjects.forEach((subject) => {
+            const item = document.createElement("div");
+            item.className = "sia-horario-subject-item";
 
-        const label = document.createElement("label");
-        label.textContent = "Seleccionar Grupo:";
-        selectorContainer.appendChild(label);
+            const header = document.createElement("div");
+            header.className = "subject-item-header";
+            header.innerHTML = `
+                <div class="subject-item-info">
+                    <h4>${subject.name}</h4>
+                    <span class="subject-item-meta">${subject.creditos || "?"} créditos</span>
+                </div>
+                <button class="remove-subject-btn" title="Eliminar asignatura">🗑️</button>
+            `;
 
-        const select = document.createElement("select");
-        select.className = "group-select-input";
-
-        // Default option (None selected)
-        const optNone = document.createElement("option");
-        optNone.value = "";
-        optNone.textContent = "-- Ninguno --";
-        select.appendChild(optNone);
-
-        const selectedGroupVal = selections[subject.name] || "";
-
-        // Populate groups
-        if (subject.groups) {
-            subject.groups.forEach((g) => {
-                const opt = document.createElement("option");
-                opt.value = g.name;
-
-                // Check for conflicts if this group were to be selected
-                const conflicts = getConflictsForGroup(subject.name, g);
-                const isCurrentlySelected = selectedGroupVal === g.name;
-
-                let suffix = "";
-                // If it conflicts and is NOT the currently selected group, flag it
-                if (conflicts.length > 0 && !isCurrentlySelected) {
-                    suffix = ` ⚠️ (Conflicto con: ${conflicts.map(c => c.subjectName).join(", ")})`;
-                }
-
-                opt.textContent = `${g.name} - ${g.profesor || "Sin profesor"}${suffix}`;
-                select.appendChild(opt);
+            // Bind remove event
+            header.querySelector(".remove-subject-btn").addEventListener("click", () => {
+                removeSubject(subject.name);
+                // Update the injected page button if it is currently displayed on this page
+                updateButtonState(subject.name);
+                // Rerender Horario tab
+                renderHorario(container);
             });
-        }
 
-        select.value = selectedGroupVal;
+            // Group selector
+            const selectorContainer = document.createElement("div");
+            selectorContainer.className = "group-selector-container";
 
-        // Listen for group selection changes
-        select.addEventListener("change", (e) => {
-            const val = e.target.value;
-            const currentSelections = loadSelectedGroups();
-            if (val) {
-                currentSelections[subject.name] = val;
-            } else {
-                delete currentSelections[subject.name];
+            const label = document.createElement("label");
+            label.textContent = "Seleccionar Grupo:";
+            selectorContainer.appendChild(label);
+
+            const select = document.createElement("select");
+            select.className = "group-select-input";
+
+            // Default option (None selected)
+            const optNone = document.createElement("option");
+            optNone.value = "";
+            optNone.textContent = "-- Ninguno --";
+            select.appendChild(optNone);
+
+            const selectedGroupVal = selections[subject.name] || "";
+
+            // Populate groups
+            if (subject.groups) {
+                const dayAbbrev = {
+                    "LUNES": "Lun",
+                    "MARTES": "Mar",
+                    "MIERCOLES": "Mié",
+                    "MIÉRCOLES": "Mié",
+                    "JUEVES": "Jue",
+                    "VIERNES": "Vie",
+                    "SABADO": "Sáb",
+                    "SÁBADO": "Sáb",
+                    "DOMINGO": "Dom"
+                };
+
+                subject.groups.forEach((g) => {
+                    const opt = document.createElement("option");
+                    opt.value = g.name;
+
+                    // Format the schedule string for the option description
+                    const scheduleText = g.horarios ? g.horarios.map(h => {
+                        const day = dayAbbrev[h.dia.toUpperCase()] || h.dia;
+                        return `${day} ${h.horaInicio}-${h.horaFin}`;
+                    }).join(", ") : "";
+
+                    // Check for conflicts if this group were to be selected
+                    const conflicts = getConflictsForGroup(subject.name, g);
+                    const isCurrentlySelected = selectedGroupVal === g.name;
+
+                    let suffix = "";
+                    // If it conflicts and is NOT the currently selected group, flag it
+                    if (conflicts.length > 0 && !isCurrentlySelected) {
+                        suffix = ` ⚠️ (Conflicto con: ${conflicts.map(c => c.subjectName).join(", ")})`;
+                    }
+
+                    const infoText = scheduleText ? ` - ${g.profesor || "Sin profesor"} (${scheduleText})` : ` - ${g.profesor || "Sin profesor"}`;
+                    opt.textContent = `${g.name}${infoText}${suffix}`;
+                    select.appendChild(opt);
+                });
             }
-            saveSelectedGroups(currentSelections);
-            // Re-render Horario tab to update schedule calendar and conflict indicators
-            renderHorario(container);
+
+            select.value = selectedGroupVal;
+
+            // Listen for group selection changes
+            select.addEventListener("change", (e) => {
+                const val = e.target.value;
+                const currentSelections = loadSelectedGroups();
+                if (val) {
+                    currentSelections[subject.name] = val;
+                } else {
+                    delete currentSelections[subject.name];
+                }
+                saveSelectedGroups(currentSelections);
+                // Re-render Horario tab to update schedule calendar and conflict indicators
+                renderHorario(container);
+            });
+
+            selectorContainer.appendChild(select);
+
+            // Display current selections conflict warning banner if exists
+            const currentGroup = subject.groups?.find(g => g.name === selectedGroupVal);
+            if (currentGroup) {
+                const activeConflicts = getConflictsForGroup(subject.name, currentGroup);
+                if (activeConflicts.length > 0) {
+                    const warning = document.createElement("div");
+                    warning.className = "group-selection-warning-banner";
+                    warning.innerHTML = `⚠️ <strong>Conflicto detectado:</strong> Horario coincide con ${activeConflicts.map(c => `<b>${c.subjectName} (${c.groupName})</b>`).join(", ")}`;
+                    selectorContainer.appendChild(warning);
+                    item.classList.add("has-conflict-border");
+                }
+            }
+
+            item.appendChild(header);
+            item.appendChild(selectorContainer);
+            sectionBody.appendChild(item);
         });
 
-        selectorContainer.appendChild(select);
-
-        // Display current selections conflict warning banner if exists
-        const currentGroup = subject.groups?.find(g => g.name === selectedGroupVal);
-        if (currentGroup) {
-            const activeConflicts = getConflictsForGroup(subject.name, currentGroup);
-            if (activeConflicts.length > 0) {
-                const warning = document.createElement("div");
-                warning.className = "group-selection-warning-banner";
-                warning.innerHTML = `⚠️ <strong>Conflicto detectado:</strong> Horario coincide con ${activeConflicts.map(c => `<b>${c.subjectName} (${c.groupName})</b>`).join(", ")}`;
-                selectorContainer.appendChild(warning);
-                item.classList.add("has-conflict-border");
-            }
-        }
-
-        item.appendChild(header);
-        item.appendChild(selectorContainer);
-        subjectsList.appendChild(item);
+        section.appendChild(sectionBody);
+        subjectsList.appendChild(section);
     });
 
     configPanel.appendChild(subjectsList);
@@ -385,7 +424,10 @@ function renderCalendarGrid(subjects, selections) {
             block.innerHTML = `
                 <div class="event-title" title="${subj.name}">${shortName}</div>
                 <div class="event-meta" title="Grupo: ${selectedGroup.name}">
-                    ${selectedGroup.name}
+                    Grupo ${selectedGroup.name}
+                </div>
+                <div class="event-room" title="Aula: ${h.aula || 'No asignada'}">
+                    📍 ${h.aula || 'No asignada'}
                 </div>
                 ${hasConflicts ? `<div class="event-conflict-badge">⚠️ Conflicto</div>` : ""}
             `;

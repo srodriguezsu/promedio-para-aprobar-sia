@@ -476,4 +476,54 @@
     box-shadow: 0 2px 4px rgba(15, 109, 89, 0.15);
 }
 
+/* Typology Section Styling */
+.sia-horario-typology-section {
+    margin-bottom: 24px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+}
+
+.sia-horario-typology-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.sia-horario-typology-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.sia-horario-typology-credits {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #0f6d59;
+    background: #e6f4ea;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.sia-horario-typology-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Credits Summary Adjustments */
+.sia-horario-credits-summary .credits-summary-header.no-border {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+
 
