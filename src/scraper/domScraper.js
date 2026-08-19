@@ -346,7 +346,11 @@ export function extractAsignaturaParaCursar() {
 
     // Remove the first element (contenido de la asignatura) as it is not a real group
     if (groupElementsArray.length > 0) {
-        groupElementsArray.shift();
+        // Check if it says "Contenido de la asignatura" in the first element
+        const firstGroupHeader = groupElementsArray[0].querySelector("h2")?.textContent.trim();
+        if (firstGroupHeader && firstGroupHeader.includes("Contenido de la asignatura")) {
+            groupElementsArray.shift();
+        }
     }
 
     if (groupElementsArray.length === 0) {
