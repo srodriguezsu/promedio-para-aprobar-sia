@@ -2,6 +2,8 @@
 
 # SIA UNAL Pro - Extensión de Navegador
 
+Enlace oficial [Chrome Webstore](https://chromewebstore.google.com/detail/ebcehhmonbffeaomdbjkodgkffpfllhi?utm_source=item-share-cb)
+
 ## Objetivo del Proyecto
 
 SIA UNAL Pro calcula automáticamente el promedio de cada asignatura de los estudiantes de la Universidad Nacional de Colombia (UNAL) mientras navegan por el sistema de calificaciones y estima la calificación mínima necesaria en las actividades pendientes para alcanzar un promedio final de 3.0, facilitando la planificación académica y la toma de decisiones.
